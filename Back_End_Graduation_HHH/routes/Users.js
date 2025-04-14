@@ -27,14 +27,6 @@ router.post("/", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await Users.findOne({ where: { email: email } });
-  bcrypt.hash(password, 10).then((hash) => {
-    Users.create({
-      firstName: fname,
-      secoundName: sname,
-      email: email,
-      password: hash,
-    });
-  });
   !user
     ? res.json({ error: "not fund" })
     : bcrypt.compare(password, user.password).then((match) => {
