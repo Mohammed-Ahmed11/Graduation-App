@@ -12,16 +12,30 @@ const { sign } = require("jsonwebtoken");
 
 router.post("/", async (req, res) => {
   const { fname, lname, email, password, pImage } = req.body;
-  bcrypt.hash(password, 10).then((hash) => {
-    Users.create({
+
+  try {
+    // wait for the hash to complete
+    const hash = await bcrypt.hash(password, 10);
+
+    // wait for the database operation to complete
+    const newUser = await Users.create({
       firstName: fname,
       secoundName: lname,
       email: email,
       password: hash,
       profile_image: pImage,
     });
-  });
-  res.json("success!");
+
+    res.json({ success: true, message: "User registered successfully" });
+  } catch (error) {
+    // error handling
+    console.error("Registration error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Registration failed",
+      error: error.message,
+    });
+  }
 });
 
 router.post("/login", async (req, res) => {

@@ -13,6 +13,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  var bool_isLoading = false;
 
   void _login() {
     if (_formKey.currentState!.validate()) {
@@ -47,7 +48,11 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.person, color: Color(0xFF3871c1), size: 100,), // Person icon
+              Icon(
+                Icons.person,
+                color: Color(0xFF3871c1),
+                size: 100,
+              ), // Person icon
               SizedBox(width: 10), // Space between icon and text
               const Text(
                 "Sign-In",
@@ -60,12 +65,15 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _emailController,
-                style: const TextStyle(color: Colors.black), // Set text color to black
+                style: const TextStyle(
+                    color: Colors.black), // Set text color to black
                 decoration: const InputDecoration(
                   labelText: "Email",
-                  labelStyle: TextStyle(color: Colors.black), // Label text color
+                  labelStyle:
+                      TextStyle(color: Colors.black), // Label text color
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email, color: Colors.black), // Icon color
+                  prefixIcon:
+                      Icon(Icons.email, color: Colors.black), // Icon color
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -78,12 +86,15 @@ class _LoginPageState extends State<LoginPage> {
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
-                style: const TextStyle(color: Colors.black), // Set text color to black
+                style: const TextStyle(
+                    color: Colors.black), // Set text color to black
                 decoration: const InputDecoration(
                   labelText: "Password",
-                  labelStyle: TextStyle(color: Colors.black), // Label text color
+                  labelStyle:
+                      TextStyle(color: Colors.black), // Label text color
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock, color: Colors.black), // Icon color
+                  prefixIcon:
+                      Icon(Icons.lock, color: Colors.black), // Icon color
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -98,7 +109,8 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ForgetPasswordPage()),
+                      MaterialPageRoute(
+                          builder: (context) => ForgetPasswordPage()),
                     );
                   },
                   child: const Text(
@@ -130,7 +142,8 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegisterPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const RegisterPage()),
                   );
                 },
                 child: const Text(
@@ -138,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(
                     color: Color(0xFF3871c1),
                     fontSize: 25,
-                    ),
+                  ),
                 ),
               ),
             ],
