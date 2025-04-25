@@ -31,6 +31,8 @@ dependencies:
   flutter:
     sdk: flutter
   image_picker: ^1.0.4
+  speech_to_text: ^6.4.0
+  flutter_tts: ^3.8.5
   http: ^1.1.0
   firebase_core: any
   firebase_auth: any
