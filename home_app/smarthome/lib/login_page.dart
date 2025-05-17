@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'register_page.dart'; // Import Register Page for navigation
-import 'forget_password.dart'; // Import Forget Password Page
+import 'category_page.dart';
+import 'register_page.dart';
+import 'forget_password.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,14 +19,54 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var bool_isLoading = false;
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      // Perform login logic here (e.g., Firebase authentication)
+  void _login() async {
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      bool_isLoading = true;
+    });
+
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/api/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login successful! Welcome ${data['user']['firstName']}')),
+        );
+
+        Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+          MaterialPageRoute(builder: (context) => CategoryPage()),
+        );
+      } else {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data['message'] ?? 'Login failed')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login Successful!')),
+        SnackBar(content: Text('An error occurred: $e')),
       );
     }
+
+    setState(() {
+      bool_isLoading = false;
+    });
   }
+}
 
   @override
   Widget build(BuildContext context) {

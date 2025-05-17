@@ -1,26 +1,59 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart'; // Import Login Page for navigation
+import 'login_page.dart';
+import 'package:http/http.dart' as http; // Import http package for API calls
+import 'dart:convert';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _RegisterPageState createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _secondNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  void _register() {
+  void _register() async {
     if (_formKey.currentState!.validate()) {
-      // Perform registration logic here
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration Successful!')),
-      );
+      final url = Uri.parse('http://10.0.2.2:3000/api/register');
+      
+      try {
+        final response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "firstName": _firstNameController.text.trim(),
+            "secoundName": _secondNameController.text.trim(), // use same spelling as backend expects
+            "email": _emailController.text.trim(),
+            "password": _passwordController.text,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Registration successful')),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration failed: ${response.body}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error occurred: $e')),
+        );
+      }
     }
   }
 
@@ -60,34 +93,34 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 20),
               TextFormField(
-                controller: _usernameController,
+                controller: _firstNameController,
                 style: const TextStyle(color: Colors.black), // Set text color to black
                 decoration: const InputDecoration(
-                  labelText: "Username",
+                  labelText: "First Name",
                   labelStyle: TextStyle(color: Colors.black), // Label text color
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.person, color: Colors.black), // Icon color
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your username';
+                    return 'Please enter your First Name';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _usernameController,
+                controller: _secondNameController,
                 style: const TextStyle(color: Colors.black), // Set text color to black
                 decoration: const InputDecoration(
-                  labelText: "Mobile",
+                  labelText: "Second Name",
                   labelStyle: TextStyle(color: Colors.black), // Label text color
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.phone, color: Colors.black), // Icon color
+                  prefixIcon: Icon(Icons.person, color: Colors.black), // Icon color
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your phone';
+                    return 'Please enter your Second Name';
                   }
                   return null;
                 },
@@ -171,7 +204,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   );
                 },
                 child: const Text(
-                  "Already have an account? Sign In",
+                  "Already have an account? Sign-In",
                   style: TextStyle(
                     color: Color(0xFF3871c1),
                     fontSize: 25,
