@@ -21,15 +21,15 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _register() async {
     if (_formKey.currentState!.validate()) {
-      final url = Uri.parse('http://10.0.2.2:3000/api/register');
+      final url = Uri.parse('http://localhost:3001/auth/');
       
       try {
         final response = await http.post(
           url,
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
-            "firstName": _firstNameController.text.trim(),
-            "secoundName": _secondNameController.text.trim(), // use same spelling as backend expects
+            "fname": _firstNameController.text.trim(),
+            "lname": _secondNameController.text.trim(), // use same spelling as backend expects
             "email": _emailController.text.trim(),
             "password": _passwordController.text,
           }),

@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:smarthome/profile_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'details_page.dart';
 import 'main.dart'; // Import main page
 
-class CategoryPage extends StatelessWidget {
+class CategoryPage extends StatefulWidget {
+  const CategoryPage({super.key});
+
+  @override
+  _CategoryPageState createState() => _CategoryPageState();
+}
+
+class _CategoryPageState extends State<CategoryPage> {
+  String username = "User"; // Default username
+  String email = "email@gmail.com"; // Default username
+
   // Define categories with their corresponding images
   final List<Map<String, String>> categories = [
     {'title': 'Living Room', 'image': 'assets/images/living_room.jpg'},
@@ -14,7 +26,45 @@ class CategoryPage extends StatelessWidget {
     {'title': 'Garden', 'image': 'assets/images/garden.jpg'},
   ];
 
-  CategoryPage({super.key});
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
+  }
+
+  Future<void> _loadUsername() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token') ?? '';
+
+      if (token.isNotEmpty) {
+        // Extract username from token
+        try {
+          final parts = token.split('.');
+          if (parts.length > 1) {
+            // Base64Url decode with proper padding
+            String base64Str = parts[1];
+            // Add padding if needed
+            while (base64Str.length % 4 != 0) {
+              base64Str += '=';
+            }
+
+            final payload = utf8.decode(base64Url.decode(base64Str));
+            final payloadMap = jsonDecode(payload);
+
+            setState(() {
+              username = payloadMap['username'] ?? 'User';
+              email =  payloadMap['email'] ?? 'email@gmail.com';
+            });
+          }
+        } catch (e) {
+          print('Token parsing error: $e');
+        }
+      }
+    } catch (e) {
+      print('Failed to load username: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,17 +77,17 @@ class CategoryPage extends StatelessWidget {
             elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: const [
+              children: [
                 Text(
-                  "Hello, User", // Replace 'User' with actual username
-                  style: TextStyle(
+                  "Hello, $username", // Using the extracted username
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(width: 10),
-                Icon(Icons.person, color: Colors.white),
+                const SizedBox(width: 10),
+                const Icon(Icons.person, color: Colors.white),
               ],
             ),
             leading: IconButton(
@@ -78,13 +128,13 @@ class CategoryPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 10),
-          Text(
+          const SizedBox(height: 10),
+          const Text(
             "Your Rooms",
             style: TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
-              color: Color(0xeeeeeeee),
+              color: Color(0xFFEEEEEE),
             ),
           ),
           Expanded(

@@ -42,7 +42,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    userData['fullName'] ?? "Mohammed Ahmed Ali", // Default if null
+                    userData['username'] ?? "Mohammed Ahmed Ali", // Default if null
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'category_page.dart';
 import 'register_page.dart';
 import 'forget_password.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,58 +20,79 @@ class _LoginPageState extends State<LoginPage> {
   var bool_isLoading = false;
 
   void _login() async {
-  if (_formKey.currentState!.validate()) {
-    setState(() {
-      bool_isLoading = true;
-    });
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        bool_isLoading = true;
+      });
 
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text.trim();
+      final String email = _emailController.text.trim();
+      final String password = _passwordController.text.trim();
 
-    try {
-      final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/api/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
-      );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode == 200 && data['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login successful! Welcome ${data['user']['firstName']}')),
+      try {
+        final response = await http.post(
+          Uri.parse('http://localhost:3001/auth/login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': email,
+            'password': password,
+          }),
         );
 
-        Navigator.pushReplacement(
+        final data = jsonDecode(response.body);
+
+        if (response.statusCode == 200 && !data.containsKey('error')) {
+          // Store the JWT token
+          final String token = data["success"];
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('auth_token', token);
+
+          // Decode the JWT token to get user info
+          // JWT structure: header.payload.signature
+          final parts = token.split('.');
+          if (parts.length > 1) {
+            // Decode payload
+            final normalized = base64Url.normalize(parts[1]);
+            final payload = utf8.decode(base64Url.decode(normalized));
+            final payloadMap = json.decode(payload);
+
+            final String username = payloadMap['username'] ?? 'User';
+            final String email = payloadMap['email'] ?? 'User';
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Login successful! Welcome $username')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Login successful!')),
+            );
+          }
+
+          Navigator.pushReplacement(
+            // ignore: use_build_context_synchronously
+            context,
+            MaterialPageRoute(builder: (context) => CategoryPage()),
+          );
+        } else {
           // ignore: use_build_context_synchronously
-          context,
-          MaterialPageRoute(builder: (context) => CategoryPage()),
-        );
-      } else {
-        // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['error'] ?? 'Login failed')),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? 'Login failed')),
+          SnackBar(content: Text('An error occurred: $e')),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: $e')),
-      );
-    }
 
-    setState(() {
-      bool_isLoading = false;
-    });
+      setState(() {
+        bool_isLoading = false;
+      });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0d1017), // Set background color to #eee
+      backgroundColor: const Color(0xFF0d1017), // Set background color to #0d1017
       appBar: AppBar(
         backgroundColor: const Color(0xFF2879fe),
         title: const Text(
@@ -79,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.bold,
-            color:  Color(0xeeeeeeee),
+            color: Color(0xFFEEEEEE),
           ),
         ),
         centerTitle: true,
@@ -110,14 +131,13 @@ class _LoginPageState extends State<LoginPage> {
               TextFormField(
                 controller: _emailController,
                 style: const TextStyle(
-                    color: Color(0xeeeeeeee),), // Set text color to black
+                  color: Color(0xFFEEEEEE),
+                ), // Set text color
                 decoration: const InputDecoration(
                   labelText: "Email",
-                  labelStyle:
-                      TextStyle(color: Color(0xeeeeeeee),), // Label text color
+                  labelStyle: TextStyle(color: Color(0xFFEEEEEE)), // Label text color
                   border: OutlineInputBorder(),
-                  prefixIcon:
-                      Icon(Icons.email, color: Color(0xeeeeeeee),), // Icon color
+                  prefixIcon: Icon(Icons.email, color: Color(0xFFEEEEEE)), // Icon color
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -131,14 +151,13 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _passwordController,
                 obscureText: true,
                 style: const TextStyle(
-                    color: Color(0xeeeeeeee),), // Set text color to black
+                  color: Color(0xFFEEEEEE),
+                ), // Set text color
                 decoration: const InputDecoration(
                   labelText: "Password",
-                  labelStyle:
-                      TextStyle(color: Color(0xeeeeeeee),), // Label text color
+                  labelStyle: TextStyle(color: Color(0xFFEEEEEE)), // Label text color
                   border: OutlineInputBorder(),
-                  prefixIcon:
-                      Icon(Icons.lock, color: Color(0xeeeeeeee),), // Icon color
+                  prefixIcon: Icon(Icons.lock, color: Color(0xFFEEEEEE)), // Icon color
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -153,8 +172,7 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => ForgetPasswordPage()),
+                      MaterialPageRoute(builder: (context) => ForgetPasswordPage()),
                     );
                   },
                   child: const Text(
@@ -170,12 +188,14 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _login,
+                  onPressed: bool_isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2879fe),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text(
+                  child: bool_isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                     "Login",
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
@@ -186,8 +206,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const RegisterPage()),
+                    MaterialPageRoute(builder: (context) => const RegisterPage()),
                   );
                 },
                 child: const Text(
