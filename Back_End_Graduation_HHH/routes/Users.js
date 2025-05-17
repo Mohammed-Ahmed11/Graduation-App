@@ -46,16 +46,16 @@ router.post("/login", async (req, res) => {
     : bcrypt.compare(password, user.password).then((match) => {
         !match
           ? res.json({ error: "wrong password" })
-          : res.json(
-              sign(
+          : res.json({
+              success: sign(
                 {
                   email: user.email,
                   username: user.firstName + " " + user.secoundName,
                   id: user.id,
                 },
                 "important"
-              )
-            );
+              ),
+            });
       });
 });
 
