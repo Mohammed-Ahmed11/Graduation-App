@@ -109,7 +109,7 @@ class _DetailsPageState extends State<DetailsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(categoryTitle),
-        backgroundColor: const Color(0xFF00adef),
+        backgroundColor: const Color(0xFF2879fe),
       ),
       body: Stack(
         children: [
@@ -222,7 +222,7 @@ class _DetailsPageState extends State<DetailsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNewFeature,
-        backgroundColor: Color(0xFF00adef),
+        backgroundColor: Color(0xFF2879fe),
         child: Icon(Icons.add, color: Colors.white),
       ),
     );

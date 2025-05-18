@@ -23,10 +23,10 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFeeeeee),
+      backgroundColor: const Color(0xFF0d1017),
       appBar: AppBar(
         title: Text("Forgot Password"),
-        backgroundColor: Color(0xFF00adef),
+        backgroundColor: Color(0xFF2879fe),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -35,13 +35,13 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.lock_reset, color: Color(0xFF3871c1), size: 100,),
+              Icon(Icons.lock_reset, color: Color(0xFF2879fe), size: 100,),
               const Text(
                 "Forget Password",
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF3871c1),
+                  color: Color(0xFF2879fe),
                   ),
               ),
               SizedBox(height: 100),
@@ -50,7 +50,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF3871c1),
+                  color: Color(0xFF2879fe),
                   ),
                 textAlign: TextAlign.center,
               ),
@@ -60,8 +60,8 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: "Email",
-                  labelStyle: TextStyle(color: Colors.black), // Label text color
-                  prefixIcon: Icon(Icons.email, color: Colors.black), // Icon color
+                  labelStyle: TextStyle(color: Color(0xeeeeeeee),), // Label text color
+                  prefixIcon: Icon(Icons.email, color: Color(0xeeeeeeee),), // Icon color
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
@@ -77,7 +77,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
               ElevatedButton(
                 onPressed: _resetPassword,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF3871c1),
+                  backgroundColor: Color(0xFF2879fe),
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 40),
                 ),
                 child: Text("Reset Password", style: TextStyle(fontSize: 16, color: Colors.white)),

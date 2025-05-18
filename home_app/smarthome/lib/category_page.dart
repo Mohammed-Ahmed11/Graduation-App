@@ -19,11 +19,11 @@ class CategoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFe6e4dc), // Solid background color
+      backgroundColor: const Color(0xFF0d1017), // Solid background color
       body: Column(
         children: [
           AppBar(
-            backgroundColor: Color(0xFF00adef),
+            backgroundColor: Color(0xFF2879fe),
             elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -84,7 +84,7 @@ class CategoryPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF3871c1),
+              color: Color(0xeeeeeeee),
             ),
           ),
           Expanded(
@@ -147,9 +147,9 @@ class CategoryPage extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xFF00adef),
+        backgroundColor: const Color(0xFF2879fe),
         selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Colors.white,
         currentIndex: 1, // Set Categories as the selected tab
         items: const [
           BottomNavigationBarItem(

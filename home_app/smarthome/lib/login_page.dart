@@ -71,15 +71,15 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFeeeeee), // Set background color to #eee
+      backgroundColor: const Color(0xFF0d1017), // Set background color to #eee
       appBar: AppBar(
-        backgroundColor: const Color(0xFF00adef),
+        backgroundColor: const Color(0xFF2879fe),
         title: const Text(
-          "Sentinel Home",
+          "HYPER HEIM",
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.bold,
-            color: Color(0xFFEEEEEE),
+            color:  Color(0xeeeeeeee),
           ),
         ),
         centerTitle: true,
@@ -94,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               Icon(
                 Icons.person,
-                color: Color(0xFF3871c1),
+                color: Color(0xFF2879fe),
                 size: 100,
               ), // Person icon
               SizedBox(width: 10), // Space between icon and text
@@ -103,21 +103,21 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(
                   fontSize: 38,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF3871c1),
+                  color: Color(0xFF2879fe),
                 ),
               ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: _emailController,
                 style: const TextStyle(
-                    color: Colors.black), // Set text color to black
+                    color: Color(0xeeeeeeee),), // Set text color to black
                 decoration: const InputDecoration(
                   labelText: "Email",
                   labelStyle:
-                      TextStyle(color: Colors.black), // Label text color
+                      TextStyle(color: Color(0xeeeeeeee),), // Label text color
                   border: OutlineInputBorder(),
                   prefixIcon:
-                      Icon(Icons.email, color: Colors.black), // Icon color
+                      Icon(Icons.email, color: Color(0xeeeeeeee),), // Icon color
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -131,14 +131,14 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _passwordController,
                 obscureText: true,
                 style: const TextStyle(
-                    color: Colors.black), // Set text color to black
+                    color: Color(0xeeeeeeee),), // Set text color to black
                 decoration: const InputDecoration(
                   labelText: "Password",
                   labelStyle:
-                      TextStyle(color: Colors.black), // Label text color
+                      TextStyle(color: Color(0xeeeeeeee),), // Label text color
                   border: OutlineInputBorder(),
                   prefixIcon:
-                      Icon(Icons.lock, color: Colors.black), // Icon color
+                      Icon(Icons.lock, color: Color(0xeeeeeeee),), // Icon color
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -160,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: const Text(
                     "Forgot Password?",
                     style: TextStyle(
-                      color: Color(0xFF3871c1),
+                      color: Color(0xFF2879fe),
                       fontSize: 16,
                     ),
                   ),
@@ -172,7 +172,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3871c1),
+                    backgroundColor: const Color(0xFF2879fe),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   child: const Text(
@@ -193,7 +193,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: const Text(
                   "Don't have an account? Sign Up",
                   style: TextStyle(
-                    color: Color(0xFF3871c1),
+                    color: Color(0xFF2879fe),
                     fontSize: 25,
                   ),
                 ),

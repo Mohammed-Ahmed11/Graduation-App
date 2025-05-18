@@ -66,9 +66,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      backgroundColor: const Color(0xFF00adef),
+      backgroundColor: const Color(0xFF2879fe),
+      iconTheme: const IconThemeData(color: Color(0xFFeeeeee)),
       title: const Text(
-        "Smart Home",
+        "HYPER HEIM",
         style: TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.bold,
@@ -80,7 +81,7 @@ Widget build(BuildContext context) {
     body: Container(
       width: double.infinity,
       height: double.infinity,
-      color: const Color(0xFFeeeeee),
+      color: const Color(0xFF0d1017),
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -91,7 +92,7 @@ Widget build(BuildContext context) {
             style: TextStyle(
               fontSize: 34,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF000000),
+              color: Color(0xFF2879fe),
             ),
             textAlign: TextAlign.center,
           ),
@@ -106,18 +107,18 @@ Widget build(BuildContext context) {
               );
             },
             child: Image.asset(
-              "assets/images/logo_icon.png",
+              "assets/images/hhhlogocolor.png",
               width: MediaQuery.of(context).size.width * 0.8,
               fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: 20),
           const Text(
-            "Smart Home",
+            "Smart Home Assistant",
             style: TextStyle(
               fontSize: 34,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Color(0xFF2879fe),
             ),
             textAlign: TextAlign.center,
           ),
@@ -127,7 +128,7 @@ Widget build(BuildContext context) {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Color(0xFF2879fe),
             ),
             textAlign: TextAlign.center,
           ),
@@ -144,7 +145,7 @@ Widget build(BuildContext context) {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3871c1),
+                  backgroundColor: const Color(0xFF2879fe),
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -171,7 +172,7 @@ Widget build(BuildContext context) {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3871c1),
+                  backgroundColor: const Color(0xFF2879fe),
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
