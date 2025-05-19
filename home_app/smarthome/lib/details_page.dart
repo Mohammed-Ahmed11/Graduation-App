@@ -1,5 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
 
 class DetailsPage extends StatefulWidget {
   final Map<String, String> category;
@@ -12,6 +15,10 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailsPageState extends State<DetailsPage> {
   late List<Map<String, dynamic>> categoryDetails;
+  late Timer? _updateTimer;
+
+  // Using localhost:3001 as specified
+  final String baseUrl = 'http://localhost:3001';
 
   final Map<String, List<String>> initialDetails = {
     'Living Room': ['Lights', 'TV', 'AC', 'Curtains'],
@@ -59,6 +66,48 @@ class _DetailsPageState extends State<DetailsPage> {
     categoryDetails = (initialDetails[widget.category['title']] ?? [])
         .map((feature) => {'name': feature, 'enabled': false})
         .toList();
+
+    // Setup timer for real-time updates if it's the Kitchen category
+    if (widget.category['title'] == 'Kitchen') {
+      _fetchKitchenStatus(); // Initial fetch
+      _updateTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+        _fetchKitchenStatus();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    // Cancel timer when the widget is disposed
+    _updateTimer?.cancel();
+    super.dispose();
+  }
+
+  // Function to fetch kitchen status from your Node.js backend
+  Future<void> _fetchKitchenStatus() async {
+    if (widget.category['title'] != 'Kitchen') return;
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/cat/kitchen/status'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        setState(() {
+          categoryState['Kitchen']?['temperature'] = data['temp'];
+          categoryState['Kitchen']?['electricity'] = data['electricity'];
+        });
+
+        print('Kitchen status updated: ${data['temp']}°C, ${data['electricity']} kWh');
+      } else {
+        print('Failed to fetch kitchen status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching kitchen status: $e');
+    }
   }
 
   void _toggleFeature(int index) {
