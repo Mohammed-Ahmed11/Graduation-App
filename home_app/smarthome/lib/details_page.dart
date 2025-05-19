@@ -23,9 +23,9 @@ class _DetailsPageState extends State<DetailsPage> {
   final Map<String, List<String>> initialDetails = {
     'Living Room': ['Lights', 'TV', 'AC', 'Curtains'],
     'Kitchen': ['Smart Oven', 'Refrigerator Monitoring', 'Dishwasher Control'],
-    'Garage': ['Automatic Door', 'Security Cameras', 'Car Charging'],
-    'Roof': ['Solar Panels', 'Water Drainage System', 'Weather Monitoring'],
-    'Bedroom': ['Smart Bed', 'Air Purifier', 'Lighting Control'],
+    'Garage': ['Automatic Door', 'Lights', 'Car Charging'],
+    'Roof': ['Solar Panels', 'Water Drainage System'],
+    'Bedroom': ['Smart Alarm', 'Air Purifier', 'Lighting Control'],
     'Garden': ['Automated Watering', 'Soil Monitoring', 'Outdoor Lighting'],
   };
 
@@ -44,6 +44,7 @@ class _DetailsPageState extends State<DetailsPage> {
     'Water Drainage System': Icons.water_drop,
     'Weather Monitoring': Icons.cloud,
     'Smart Bed': Icons.bed,
+    'Smart Alarm': Icons.alarm,
     'Air Purifier': Icons.air,
     'Lighting Control': Icons.light_mode,
     'Automated Watering': Icons.water,
@@ -51,6 +52,8 @@ class _DetailsPageState extends State<DetailsPage> {
     'Outdoor Lighting': Icons.outdoor_grill,
   };
 
+  // Simulated state for each category
+  // In a real application, this would be fetched from your backend
   final Map<String, Map<String, dynamic>> categoryState = {
     'Living Room': {'temperature': 24, 'electricity': 150},
     'Kitchen': {'temperature': 22, 'electricity': 200},

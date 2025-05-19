@@ -112,6 +112,7 @@ class _CategoryPageState extends State<CategoryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: const [
+                  // Show Weather Info Outside Home
                   Text(
                     "Weather Information",
                     style: TextStyle(
