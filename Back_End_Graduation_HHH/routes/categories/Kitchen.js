@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-// You can use a database or in-memory object to store latest state
 let kitchenStatus = {
   temperature: null,
   electricity: null,
@@ -12,7 +11,6 @@ let kitchenStatus = {
 
 //  Http Routes
 
-// Example to get latest kitchen status
 router.post("/status", async (req, res) => {
   // const { temp, electricity } = req.body;
   // kitchenStatus.temperature = temp;
@@ -25,14 +23,14 @@ router.post("/status", async (req, res) => {
   });
 });
 
-router.post("/change", async (req, res) => {
-  const { temp, electricity } = req.body;
-  kitchenStatus.temperature = temp;
-  kitchenStatus.electricity = electricity;
+// router.post("/change", async (req, res) => {
+//   const { temp, electricity } = req.body;
+//   kitchenStatus.temperature = temp;
+//   kitchenStatus.electricity = electricity;
 
-  console.log("[Kitchen] Status Changed via HTTP:", kitchenStatus);
-  res.send({ success: true });
-});
+//   console.log("[Kitchen] Status Changed via HTTP:", kitchenStatus);
+//   res.send({ success: true });
+// });
 
 router.post("/set", async (req, res) => {
   const { smartOven, refigeratorMonitoring, DishwasherControl } = req.body;

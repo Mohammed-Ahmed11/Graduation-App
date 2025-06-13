@@ -3,12 +3,23 @@ const router = express.Router();
 const { Users } = require("../models");
 const bcrypt = require("bcrypt");
 
-const { sign } = require("jsonwebtoken");
-// router.get("/byId/:id",async(req,res)=>{
-//     const id = req.params.id;
-//     const post = await Posts.findByPk(id);
-//     res.json(post);
-// });
+const { sign, verify } = require("jsonwebtoken");
+router.get("/verify", (req, res) => {
+  const authHeader = req.headers["authorization"];
+
+  if (!authHeader) {
+    return res.status(401).json({ valid: false, error: "No token provided" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = verify(token, "important"); // Same secret key as login
+    res.json({ valid: true, user: decoded }); // You can also return decoded user info if needed
+  } catch (err) {
+    res.status(401).json({ error: "Invalid or expired token" });
+  }
+});
 
 router.post("/", async (req, res) => {
   const { fname, lname, email, password, pImage } = req.body;
@@ -17,9 +28,10 @@ router.post("/", async (req, res) => {
   try {
     const existingUser = await Users.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(409).json({
+      return res.json({
         success: false,
         message: "Email is already registered",
+        error: "falid",
       });
     }
 
@@ -42,8 +54,8 @@ router.post("/", async (req, res) => {
     console.error("Registration error:", error);
     res.status(500).json({
       success: false,
-      message: "Registration failed",
-      error: error.message,
+      message: error.message,
+      error: "falid",
     });
   }
 });
