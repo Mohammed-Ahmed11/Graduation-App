@@ -4,23 +4,16 @@ import 'package:flutter_tts/flutter_tts.dart';
 class AiAssistant {
   final SpeechToText _speechToText = SpeechToText();
   final FlutterTts _flutterTts = FlutterTts();
-  bool _isListening = false;
   bool _isInitialized = false;
 
   Future<void> startListening(Function(String command) onCommandRecognized) async {
-    // Initialize if not done already
     if (!_isInitialized) {
       _isInitialized = await _speechToText.initialize(
-        onStatus: (status) {
-          print("Speech status: $status");
-        },
-        onError: (error) {
-          print("Speech error: $error");
-        },
+        onStatus: (status) => print("Speech status: $status"),
+        onError: (error) => print("Speech error: $error"),
       );
     }
 
-    // If failed to initialize
     if (!_isInitialized) {
       print("Failed to initialize speech recognition");
       return;
@@ -35,7 +28,6 @@ class AiAssistant {
       onResult: (result) {
         if (result.finalResult) {
           onCommandRecognized(result.recognizedWords);
-          stopListening(); // Stop after command recognized
         }
       },
     );
@@ -47,7 +39,7 @@ class AiAssistant {
     }
   }
 
-  Future<void> handleCommand(String command) async {
+  Future<String> handleCommand(String command) async {
     command = command.toLowerCase();
     String response;
 
@@ -56,9 +48,10 @@ class AiAssistant {
     } else if (command.contains("close light")) {
       response = "Turning off the light.";
     } else {
-      response = "Sorry, I didn't understand that command.";
+      response = "I'm not sure how to help with that. Can you try asking differently?";
     }
 
     await _flutterTts.speak(response);
+    return response;
   }
 }
