@@ -2,79 +2,61 @@ const express = require("express");
 const router = express.Router();
 
 let kitchenStatus = {
-  temperature: null,
-  electricity: null,
+  fire: null,
+  mq2: null,
+  mq5: null,
+  alert: false,
   smartOven: false,
   refigeratorMonitoring: false,
   DishwasherControl: false,
 };
 
-//  Http Routes
-
+// ===== HTTP API =====
 router.post("/status", async (req, res) => {
-  // const { temp, electricity } = req.body;
-  // kitchenStatus.temperature = temp;
-  // kitchenStatus.electricity = electricity;
-
-  // console.log("[Kitchen] Status Updated via HTTP:", kitchenStatus);
   res.send({
-    temp: kitchenStatus.temperature,
-    electricity: kitchenStatus.electricity,
+    fire: kitchenStatus.fire,
+    mq2: kitchenStatus.mq2,
+    mq5: kitchenStatus.mq5,
+    alert: kitchenStatus.alert,
   });
 });
-
-// router.post("/change", async (req, res) => {
-//   const { temp, electricity } = req.body;
-//   kitchenStatus.temperature = temp;
-//   kitchenStatus.electricity = electricity;
-
-//   console.log("[Kitchen] Status Changed via HTTP:", kitchenStatus);
-//   res.send({ success: true });
-// });
 
 router.post("/set", async (req, res) => {
   const { smartOven, refigeratorMonitoring, DishwasherControl } = req.body;
 
-  kitchenStatus.smartOven = smartOven;
-  kitchenStatus.refigeratorMonitoring = refigeratorMonitoring;
-  kitchenStatus.DishwasherControl = DishwasherControl;
+  kitchenStatus.smartOven = smartOven ?? kitchenStatus.smartOven;
+  kitchenStatus.refigeratorMonitoring =
+    refigeratorMonitoring ?? kitchenStatus.refigeratorMonitoring;
+  kitchenStatus.DishwasherControl =
+    DishwasherControl ?? kitchenStatus.DishwasherControl;
 
-  console.log("[Kitchen] Devices Set via HTTP:", kitchenStatus);
+  console.log("[Kitchen] Devices Set via HTTP:", {
+    smartOven,
+    refigeratorMonitoring,
+    DishwasherControl,
+  });
+
   res.send({
-    oven: smartOven,
-    refigerator: refigeratorMonitoring,
-    dishwasher: DishwasherControl,
+    oven: kitchenStatus.smartOven,
+    refigerator: kitchenStatus.refigeratorMonitoring,
+    dishwasher: kitchenStatus.DishwasherControl,
   });
 });
 
-// WebSocket Handling
-
+// ===== WebSocket Data Handler =====
 function handleKitchenData(data) {
   try {
-    const {
-      temp,
-      electricity,
-      smartOven,
-      refigeratorMonitoring,
-      DishwasherControl,
-    } = data;
+    // ✅ No need to check for `data.kitchen`, data *is* the kitchen object now
+    const { fire, mq2, mq5, alert } = data;
 
-    // You could also store or process this in DB or emit to frontend
-    kitchenStatus = {
-      temperature: temp ?? kitchenStatus.temperature,
-      electricity: electricity ?? kitchenStatus.electricity,
-      smartOven: smartOven ?? kitchenStatus.smartOven,
-      refigeratorMonitoring:
-        refigeratorMonitoring ?? kitchenStatus.refigeratorMonitoring,
-      DishwasherControl: DishwasherControl ?? kitchenStatus.DishwasherControl,
-    };
+    kitchenStatus.fire = fire ?? kitchenStatus.fire;
+    kitchenStatus.mq2 = mq2 ?? kitchenStatus.mq2;
+    kitchenStatus.mq5 = mq5 ?? kitchenStatus.mq5;
+    kitchenStatus.alert = alert ?? kitchenStatus.alert;
 
-    console.log(
-      "[Kitchen] Data received from ESP via WebSocket:",
-      kitchenStatus
-    );
+    console.log("[Kitchen] Updated from ESP:", kitchenStatus);
   } catch (err) {
-    console.error("[Kitchen] Error handling WebSocket data:", err.message);
+    console.error("[Kitchen] Error in WebSocket data handler:", err.message);
   }
 }
 
