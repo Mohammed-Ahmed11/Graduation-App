@@ -78,6 +78,7 @@ flutter:
     - assets/images/sky.jpg
     - assets/images/hhhlogo.png
     - assets/images/hhhlogocolor.png
+    - assets/images/aibg.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
