@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,7 +21,6 @@ class _RoofPageState extends State<RoofPage> {
     super.initState();
     loadRoofStatus();
 
-    // 🔁 Refresh every 5 seconds
     refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (mounted) {
         loadRoofStatus();
@@ -52,9 +52,41 @@ class _RoofPageState extends State<RoofPage> {
   }
 
   void triggerRoofCommand() {
-    // Optional: implement POST request if needed to send commands
+    if (!connected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ No connection. Cannot send command.")),
+      );
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Command sent to Roof (placeholder)")),
+      const SnackBar(content: Text("🔧 Roof command sent (mock)!")),
+    );
+  }
+
+  Widget _gridItem(IconData icon, String label, String value,
+      {Color? color, Color? iconColor}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, size: 28, color: iconColor ?? Colors.white),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: TextStyle(
+            color: color ?? Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey.shade300,
+            fontSize: 13,
+          ),
+        ),
+      ],
     );
   }
 
@@ -66,70 +98,191 @@ class _RoofPageState extends State<RoofPage> {
 
   @override
   Widget build(BuildContext context) {
-    final temp = roofData["temperature"]?.toString() ?? "N/A";
-    final electricity = roofData["electricity"]?.toString() ?? "N/A";
-    final rain = roofData["rainDetected"] == true;
-    final solarStatus = roofData["solarPanelStatus"]?.toString() ?? "Unknown";
+    final temp = connected ? (roofData["temperature"]?.toString() ?? "N/A") : "N/A";
+    final electricity = connected ? (roofData["electricity"]?.toString() ?? "N/A") : "N/A";
+    final rain = connected ? (roofData["rainDetected"] == true) : false;
+    final solarStatus = connected ? (roofData["solarPanelStatus"]?.toString() ?? "Unknown") : "Unknown";
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Roof Status"),
-        backgroundColor: Colors.teal,
+        title: const Text("Roof Dashboard"),
+        backgroundColor: const Color(0xFF2879fe),
+        elevation: 4,
       ),
-      backgroundColor: const Color(0xFF0d1017),
-      body: connected
-          ? Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+      backgroundColor: const Color(0xFF10141c),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            if (!connected)
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(12),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  "⚠️ No connection. Some data may be unavailable.",
+                  style: TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+
+            // 📸 Image
+            Container(
+              height: 160,
+              child: Stack(
                 children: [
-                  Card(
-                    color: rain ? Colors.red.shade100 : Colors.blueGrey.shade100,
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      'assets/images/roof.jpg',
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Roof Sensors",
-                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 10),
-                          Text("🌡 Temperature: $temp°C", style: const TextStyle(fontSize: 18)),
-                          Text("⚡ Electricity: $electricity", style: const TextStyle(fontSize: 18)),
-                          Text("🌧 Rain: ${rain ? 'Detected' : 'None'}", style: const TextStyle(fontSize: 18)),
-                          Text("🔋 Solar Panel: $solarStatus", style: const TextStyle(fontSize: 18)),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.4),
+                          Colors.transparent,
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 30),
-                  ElevatedButton.icon(
-                    onPressed: triggerRoofCommand,
-                    icon: const Icon(Icons.settings),
-                    label: const Text("Send Command"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      textStyle: const TextStyle(fontSize: 18),
+                  Positioned(
+                    left: 16,
+                    bottom: 16,
+                    child: Text(
+                      "Roof",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        shadows: [Shadow(color: Colors.black, blurRadius: 4)],
+                      ),
                     ),
-                  )
-                ],
-              ),
-            )
-          : const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 20),
-                  Text("Connecting to roof sensors...", style: TextStyle(color: Colors.white)),
+                  ),
                 ],
               ),
             ),
+
+            const SizedBox(height: 20),
+
+            // 🔍 Sensor Grid
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  ),
+                  child: GridView.count(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    children: [
+                      _gridItem(
+                        Icons.thermostat,
+                        "Temp",
+                        "$temp°C",
+                        iconColor: Colors.redAccent,
+                      ),
+                      _gridItem(
+                        Icons.electric_bolt,
+                        "Electricity",
+                        electricity,
+                        iconColor: Colors.yellow,
+                      ),
+                      _gridItem(
+                        Icons.cloud,
+                        "Rain",
+                        connected ? (rain ? "Detected" : "None") : "N/A",
+                        color: rain ? Colors.red : Colors.green,
+                        iconColor: rain ? Colors.redAccent : Colors.green,
+                      ),
+                      _gridItem(
+                        Icons.battery_charging_full,
+                        "Solar",
+                        solarStatus,
+                        iconColor: Colors.tealAccent,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            // 🔘 Control
+            ControlButton(
+              label: "Send Roof Command",
+              icon: Icons.settings,
+              color: const Color(0xFF2879fe),
+              onPressed: triggerRoofCommand,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ControlButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onPressed;
+  final Color color;
+  final Color? iconColor;
+
+  const ControlButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+    required this.color,
+    this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          elevation: 6,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Icon(icon, size: 24, color: iconColor ?? const Color(0xFF10141c)),
+            const SizedBox(width: 12),
+            Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
     );
   }
 }

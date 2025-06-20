@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'details_page.dart';
 import 'main.dart';
@@ -13,6 +14,7 @@ import 'Rooms/Garage.dart';
 import 'Rooms/Roof.dart';
 import 'Rooms/Bedroom.dart';
 import 'Rooms/Garden.dart';
+import 'Rooms/Corridor.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
@@ -25,12 +27,18 @@ class _CategoryPageState extends State<CategoryPage> {
   String username = "User";
   String email = "email@gmail.com";
 
+  // 🌦 Weather data
+  String temperature = "--";
+  String humidity = "--";
+  String windSpeed = "--";
+
   final List<Map<String, String>> categories = [
     {'title': 'Living Room', 'image': 'assets/images/living_room.jpg'},
     {'title': 'Kitchen', 'image': 'assets/images/kitchen.jpg'},
     {'title': 'Garage', 'image': 'assets/images/garage.jpg'},
     {'title': 'Roof', 'image': 'assets/images/roof.jpg'},
     {'title': 'Bedroom', 'image': 'assets/images/bedroom.jpg'},
+    {'title': 'Corridor', 'image': 'assets/images/corridor-2.png'},
     {'title': 'Garden', 'image': 'assets/images/garden.jpg'},
   ];
 
@@ -38,6 +46,7 @@ class _CategoryPageState extends State<CategoryPage> {
   void initState() {
     super.initState();
     _loadUsername();
+    _fetchWeather();
   }
 
   Future<void> _loadUsername() async {
@@ -66,6 +75,28 @@ class _CategoryPageState extends State<CategoryPage> {
     }
   }
 
+  Future<void> _fetchWeather() async {
+    const apiKey = "78721b86b517b6b91d97f465361178e6"; // 🔐 Replace with your actual OpenWeatherMap API key
+    const city = "Cairo"; // 🌍 Replace with your actual city
+    final url = Uri.parse("https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric");
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          temperature = "${data['main']['temp'].round()}°C";
+          humidity = "${data['main']['humidity']}%";
+          windSpeed = "${data['wind']['speed']} m/s";
+        });
+      } else {
+        print("Weather API Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Failed to fetch weather data: $e");
+    }
+  }
+
   Widget _getRoomPage(String title) {
     switch (title) {
       case 'Living Room':
@@ -80,6 +111,8 @@ class _CategoryPageState extends State<CategoryPage> {
         return const BedroomPage();
       case 'Garden':
         return const GardenPage();
+      case 'Corridor':
+        return const CorridorPage();
       default:
         return DetailsPage(category: {'title': title, 'image': ''});
     }
@@ -130,8 +163,8 @@ class _CategoryPageState extends State<CategoryPage> {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     "Weather Information",
                     style: TextStyle(
                       fontSize: 20,
@@ -139,10 +172,10 @@ class _CategoryPageState extends State<CategoryPage> {
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Text("Temperature: 25°C", style: TextStyle(color: Colors.black)),
-                  Text("Humidity: 60%", style: TextStyle(color: Colors.black)),
-                  Text("Wind Speed: 15 km/h", style: TextStyle(color: Colors.black)),
+                  const SizedBox(height: 10),
+                  Text("Temperature: $temperature", style: const TextStyle(color: Colors.black)),
+                  Text("Humidity: $humidity", style: const TextStyle(color: Colors.black)),
+                  Text("Wind Speed: $windSpeed", style: const TextStyle(color: Colors.black)),
                 ],
               ),
             ),

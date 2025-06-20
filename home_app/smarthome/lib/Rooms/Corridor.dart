@@ -4,90 +4,63 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class LivingRoomPage extends StatefulWidget {
-  const LivingRoomPage({super.key});
+class CorridorPage extends StatefulWidget {
+  const CorridorPage({super.key});
 
   @override
-  State<LivingRoomPage> createState() => _LivingRoomPageState();
+  State<CorridorPage> createState() => _CorridorPageState();
 }
 
-class _LivingRoomPageState extends State<LivingRoomPage> {
-  Map<String, dynamic> livingData = {};
+class _CorridorPageState extends State<CorridorPage> {
+  Map<String, dynamic> corridorData = {};
   bool connected = false;
   Timer? refreshTimer;
 
   @override
   void initState() {
     super.initState();
-    loadLivingStatus();
+    loadCorridorStatus();
+
     refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (mounted) {
-        loadLivingStatus();
+        loadCorridorStatus();
       } else {
         timer.cancel();
       }
     });
   }
 
-  Future<void> loadLivingStatus() async {
+  Future<void> loadCorridorStatus() async {
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/living/status');
+      final url = Uri.parse('http://192.168.1.2:3001/cat/corridor/status');
       final response = await http.post(url);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
-          livingData = data;
+          corridorData = data;
           connected = true;
         });
-        print("[Living Room] Data updated: $livingData");
+        print("[Corridor] Data updated: $corridorData");
       } else {
-        throw Exception("Failed to load living room status");
+        throw Exception("Failed to load corridor status");
       }
     } catch (e) {
-      print("HTTP error: $e");
-      setState(() {
-        connected = false;
-      });
+      print("Corridor HTTP error: $e");
+      setState(() => connected = false);
     }
   }
 
-  Future<void> toggleDevice(String key, bool currentState) async {
+  Future<void> turnOnLight() async {
     if (!connected) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ No connection. Try again later.")),
+        const SnackBar(content: Text("⚠️ No connection. Cannot control light.")),
       );
       return;
     }
 
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/living/set');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({key: !currentState}),
-      );
-
-      if (response.statusCode == 200) {
-        loadLivingStatus();
-      } else {
-        print("❌ Toggle failed: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("Error toggling $key: $e");
-    }
-  }
-
-  Future<void> triggerBuzzer() async {
-    if (!connected) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ No connection. Cannot trigger alert.")),
-      );
-      return;
-    }
-
-    try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/living/buzzer');
+      final url = Uri.parse('http://192.168.1.2:3001/cat/corridor/light');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -96,20 +69,17 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("🚨 Emergency alert triggered!")),
+          const SnackBar(content: Text("✅ Light turned on!")),
         );
       } else {
-        throw Exception("Failed to trigger buzzer");
+        throw Exception("Failed: ${response.statusCode}");
       }
     } catch (e) {
-      print("Emergency trigger error: $e");
+      print("Corridor Light error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ Error: $e")),
+      );
     }
-  }
-
-  @override
-  void dispose() {
-    refreshTimer?.cancel();
-    super.dispose();
   }
 
   Widget _gridItem(IconData icon, String label, String value,
@@ -139,23 +109,19 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
   }
 
   @override
+  void dispose() {
+    refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final motion = connected
-        ? (livingData["motion"] == true ? "Detected" : "None")
-        : "N/A";
-    final curtainOpen = connected ? (livingData["curtainOpen"] == true) : false;
-    final fanOn = connected ? (livingData["fanOn"] == true) : false;
-    final tvOn = connected ? (livingData["tvOn"] == true) : false;
-    final temp = connected
-        ? (livingData["temperature"]?.toString() ?? "N/A")
-        : "N/A";
-    final emergency = connected
-        ? (livingData["emergencyOn"] == true ? "ACTIVE 🚨" : "No")
-        : "N/A";
+    final motion = connected ? (corridorData["motion"] == true ? "Detected" : "None") : "N/A";
+    final light = connected ? (corridorData["light"] == true ? "On" : "Off") : "N/A";
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Living Room Dashboard"),
+        title: const Text("Corridor"),
         backgroundColor: const Color(0xFF2879fe),
         elevation: 4,
       ),
@@ -181,15 +147,15 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
                 ),
               ),
 
-            // 🔲 Room Image
+            // 🖼️ Corridor image
             Container(
-              height: 160,
+              height: 140,
               child: Stack(
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.asset(
-                      'assets/images/living_room.jpg',
+                      'assets/images/corridor.jpg',
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
@@ -208,11 +174,11 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
                       ),
                     ),
                   ),
-                  Positioned(
+                  const Positioned(
                     left: 16,
-                    bottom: 16,
+                    bottom: 12,
                     child: Text(
-                      "Living Room",
+                      "Corridor",
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,
@@ -227,7 +193,7 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
 
             const SizedBox(height: 20),
 
-            // 📊 Status Panel
+            // 🌫 Sensor panel
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: BackdropFilter(
@@ -243,68 +209,28 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
                   child: GridView.count(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    crossAxisCount: 3,
+                    crossAxisCount: 2,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
                     children: [
                       _gridItem(Icons.directions_run, "Motion", motion,
                           iconColor: Colors.orange),
-                      _gridItem(Icons.window, "Curtain",
-                          curtainOpen ? "Open" : "Closed",
-                          iconColor: Colors.blue),
-                      _gridItem(Icons.thermostat, "Temp", "$temp°C",
-                          iconColor: Colors.redAccent),
-                      _gridItem(Icons.wind_power, "Fan",
-                          fanOn ? "On" : "Off",
-                          iconColor: Colors.teal),
-                      _gridItem(Icons.tv, "TV", tvOn ? "On" : "Off",
-                          iconColor: Colors.deepPurple),
-                      _gridItem(
-                        Icons.warning_amber_rounded,
-                        "Emergency",
-                        emergency,
-                        color: emergency == "ACTIVE 🚨"
-                            ? Colors.red
-                            : Colors.green,
-                        iconColor: emergency == "ACTIVE 🚨"
-                            ? Colors.redAccent
-                            : Colors.green,
-                      ),
+                      _gridItem(Icons.lightbulb, "Light", light,
+                          iconColor: Colors.yellow),
                     ],
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 30),
 
-            // 🔘 Control Buttons
+            // 💡 Light control
             ControlButton(
-              label: curtainOpen ? "Close Curtain" : "Open Curtain",
-              icon: Icons.window,
-              color: const Color(0xFF2879fe),
-              onPressed: () => toggleDevice("curtainOpen", curtainOpen),
-            ),
-            const SizedBox(height: 16),
-            ControlButton(
-              label: fanOn ? "Turn Off Fan" : "Turn On Fan",
-              icon: Icons.wind_power,
-              color: const Color(0xFF2879fe),
-              onPressed: () => toggleDevice("fanOn", fanOn),
-            ),
-            const SizedBox(height: 16),
-            ControlButton(
-              label: tvOn ? "Turn Off TV" : "Turn On TV",
-              icon: Icons.tv,
-              color: const Color(0xFF2879fe),
-              onPressed: () => toggleDevice("tvOn", tvOn),
-            ),
-            const SizedBox(height: 16),
-            ControlButton(
-              label: "Trigger Emergency Alert",
-              icon: Icons.warning_amber_rounded,
-              color: const Color(0xFF2879fe),
-              onPressed: triggerBuzzer,
+              label: "Turn On Light",
+              icon: Icons.lightbulb,
+              color: Colors.amber.shade700,
+              onPressed: turnOnLight,
             ),
           ],
         ),
@@ -341,14 +267,19 @@ class ControlButton extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 6,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Icon(icon, size: 24, color: iconColor ?? const Color(0xFF10141c)),
             const SizedBox(width: 12),
-            Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
