@@ -15,6 +15,7 @@ router.post("/set", async (req, res) => {
     curtainOpen,
     fanOn,
     tvOn,
+    lights,
     emergencyOn
   } = req.body;
 
@@ -36,6 +37,25 @@ router.post("/set", async (req, res) => {
     });
   }
 
+  // === Motion sensor ===
+  if (req.body.motion !== undefined) {
+    livingRoomStatus.motion = req.body.motion;
+    commands.push({
+      room: "living",
+      target: "uno1",
+      command: req.body.motion ? "motion_on" : "motion_off"
+    });
+  }
+  // === Light sensor ===
+  if (req.body.lights !== undefined) {
+    livingRoomStatus.lightOn = req.body.lights;
+    // Use the same command for light on/off
+    commands.push({
+      room: "living",
+      target: "uno1",
+      command: req.body.lights ? "light_on" : "light_off"
+    });
+  }
   // === Fan ===
   if (fanOn !== undefined) {
     livingRoomStatus.fanOn = fanOn;
@@ -57,14 +77,40 @@ router.post("/set", async (req, res) => {
   }
 
   // === Emergency ===
-  if (emergencyOn !== undefined) {
-    livingRoomStatus.emergencyOn = emergencyOn;
-    commands.push({
+ // === Toggle Emergency ===
+router.post("/buzzer", async (req, res) => {
+  try {
+    const targetESP = espClients.get("Smart-Home-1");
+
+    if (!targetESP || targetESP.readyState !== WebSocket.OPEN) {
+      console.warn("[Living] ❌ ESP not connected");
+      return res.status(503).json({ success: false, message: "ESP not connected" });
+    }
+
+    const newState = !livingRoomStatus.emergencyOn;
+
+    // Update state first
+    livingRoomStatus.emergencyOn = newState;
+
+    const command = {
       room: "living",
       target: "uno1",
-      command: emergencyOn ? "emergency_on" : "emergency_off"
+      command: newState ? "emergency_on" : "emergency_off"
+    };
+
+    targetESP.send(JSON.stringify(command));
+    console.log(`[Living] 🚨 Emergency ${newState ? "ON" : "OFF"} → Sent to ESP:`, command);
+
+    res.json({
+      success: true,
+      message: `Emergency ${newState ? "enabled" : "disabled"}`
     });
+  } catch (err) {
+    console.error("[Living] Emergency error:", err.message);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
+});
+
 
   // Send all commands
   commands.forEach(cmd => {

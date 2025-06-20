@@ -256,6 +256,7 @@ class _RoofPageState extends State<RoofPage> {
               color: const Color(0xFF2879fe),
               onPressed: triggerRoofCommand,
             ),
+            const SizedBox(height: 16),
             ControlButton(
               label: "Trigger Buzzer",
               icon: Icons.notifications,

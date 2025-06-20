@@ -19,6 +19,7 @@ module.exports = {
         fanOn: false,
         tvOn: false,
         emergencyOn: false,
+        lightOn: false,
     },
   garageStatus: {
     doorOpen: false,

@@ -76,6 +76,7 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
     } catch (e) {
       print("Error toggling $key: $e");
     }
+    loadLivingStatus();
   }
 
   Future<void> triggerBuzzer() async {
@@ -104,6 +105,7 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
     } catch (e) {
       print("Emergency trigger error: $e");
     }
+    loadLivingStatus();
   }
 
   @override
@@ -140,18 +142,14 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
 
   @override
   Widget build(BuildContext context) {
-    final motion = connected
-        ? (livingData["motion"] == true ? "Detected" : "None")
-        : "N/A";
-    final curtainOpen = connected ? (livingData["curtainOpen"] == true) : false;
-    final fanOn = connected ? (livingData["fanOn"] == true) : false;
-    final tvOn = connected ? (livingData["tvOn"] == true) : false;
-    final temp = connected
-        ? (livingData["temperature"]?.toString() ?? "N/A")
-        : "N/A";
-    final emergency = connected
-        ? (livingData["emergencyOn"] == true ? "ACTIVE 🚨" : "No")
-        : "N/A";
+        final motion = connected ? (livingData["motion"] == true ? "Detected" : "None") : "N/A";
+        final lights = connected ? (livingData["lightOn"] == true ? "On" : "Off") : "N/A";
+        final emergencyOn = connected ? (livingData["emergencyOn"] == true ? "On" : "Off") : "N/A";
+        final curtainOpen = connected ? (livingData["curtainOpen"] == true) : false;
+        final fanOn = connected ? (livingData["fanOn"] == true) : false;
+        final tvOn = connected ? (livingData["tvOn"] == true) : false;
+        final temp = connected ? (livingData["temperature"]?.toString() ?? "N/A") : "N/A";
+        final emergency = connected ? (livingData["emergencyOn"] == true ? "ACTIVE 🚨" : "No") : "N/A";
 
     return Scaffold(
       appBar: AppBar(
@@ -280,6 +278,13 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
 
             // 🔘 Control Buttons
             ControlButton(
+              label: lights == "On" ? "Turn Off Lights" : "Turn On Lights",
+              icon: Icons.lightbulb,
+              color: const Color(0xFF2879fe),
+              onPressed: () => toggleDevice("lights", lights == "On"),
+            ),
+            const SizedBox(height: 16),
+            ControlButton(
               label: curtainOpen ? "Close Curtain" : "Open Curtain",
               icon: Icons.window,
               color: const Color(0xFF2879fe),
@@ -301,7 +306,7 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
             ),
             const SizedBox(height: 16),
             ControlButton(
-              label: "Trigger Emergency Alert",
+              label: emergencyOn == "On" ? "Stop Emergency" : "Trigger Emergency Alert",
               icon: Icons.warning_amber_rounded,
               color: const Color(0xFF2879fe),
               onPressed: triggerBuzzer,
