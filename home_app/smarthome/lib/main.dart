@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smarthome/AssistantChatSheet.dart';
+import 'package:smarthome/chathelper.dart';
 import 'package:smarthome/login_page.dart';
 import 'category_page.dart';
 import 'register_page.dart';
@@ -70,7 +71,7 @@ Widget build(BuildContext context) {
       backgroundColor: const Color(0xFF2879fe),
       iconTheme: const IconThemeData(color: Color(0xFFeeeeee)),
       title: const Text(
-        "HYPER HEIM",
+        "HUB HOME HYPER",
         style: TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.bold,
@@ -225,7 +226,7 @@ Widget build(BuildContext context) {
     floatingActionButton: FloatingActionButton(
       onPressed: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const ChatScreen()),
+          MaterialPageRoute(builder: (context) => HomeControlScreen()),
         );
       },
       backgroundColor: const Color(0xFF3871c1),
