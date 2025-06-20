@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:smarthome/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+
 import 'details_page.dart';
-import 'main.dart'; // Import main page
+import 'main.dart';
+import 'profile_page.dart';
+
+// Import room pages
+import 'Rooms/Kitchen.dart';
+import 'Rooms/Living-Room.dart';
+import 'Rooms/Garage.dart';
+import 'Rooms/Roof.dart';
+import 'Rooms/Bedroom.dart';
+import 'Rooms/Garden.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
@@ -13,10 +22,9 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
-  String username = "User"; // Default username
-  String email = "email@gmail.com"; // Default username
+  String username = "User";
+  String email = "email@gmail.com";
 
-  // Define categories with their corresponding images
   final List<Map<String, String>> categories = [
     {'title': 'Living Room', 'image': 'assets/images/living_room.jpg'},
     {'title': 'Kitchen', 'image': 'assets/images/kitchen.jpg'},
@@ -38,27 +46,19 @@ class _CategoryPageState extends State<CategoryPage> {
       final token = prefs.getString('auth_token') ?? '';
 
       if (token.isNotEmpty) {
-        // Extract username from token
-        try {
-          final parts = token.split('.');
-          if (parts.length > 1) {
-            // Base64Url decode with proper padding
-            String base64Str = parts[1];
-            // Add padding if needed
-            while (base64Str.length % 4 != 0) {
-              base64Str += '=';
-            }
-
-            final payload = utf8.decode(base64Url.decode(base64Str));
-            final payloadMap = jsonDecode(payload);
-
-            setState(() {
-              username = payloadMap['username'] ?? 'User';
-              email =  payloadMap['email'] ?? 'email@gmail.com';
-            });
+        final parts = token.split('.');
+        if (parts.length > 1) {
+          String base64Str = parts[1];
+          while (base64Str.length % 4 != 0) {
+            base64Str += '=';
           }
-        } catch (e) {
-          print('Token parsing error: $e');
+          final payload = utf8.decode(base64Url.decode(base64Str));
+          final payloadMap = jsonDecode(payload);
+
+          setState(() {
+            username = payloadMap['username'] ?? 'User';
+            email = payloadMap['email'] ?? 'email@gmail.com';
+          });
         }
       }
     } catch (e) {
@@ -66,20 +66,39 @@ class _CategoryPageState extends State<CategoryPage> {
     }
   }
 
+  Widget _getRoomPage(String title) {
+    switch (title) {
+      case 'Living Room':
+        return const LivingRoomPage();
+      case 'Kitchen':
+        return const KitchenPage();
+      case 'Garage':
+        return const GaragePage();
+      case 'Roof':
+        return const RoofPage();
+      case 'Bedroom':
+        return const BedroomPage();
+      case 'Garden':
+        return const GardenPage();
+      default:
+        return DetailsPage(category: {'title': title, 'image': ''});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0d1017), // Solid background color
+      backgroundColor: const Color(0xFF0d1017),
       body: Column(
         children: [
           AppBar(
-            backgroundColor: Color(0xFF2879fe),
+            backgroundColor: const Color(0xFF2879fe),
             elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  "Hello, $username", // Using the extracted username
+                  "Hello, $username",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -112,7 +131,6 @@ class _CategoryPageState extends State<CategoryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: const [
-                  // Show Weather Info Outside Home
                   Text(
                     "Weather Information",
                     style: TextStyle(
@@ -152,11 +170,10 @@ class _CategoryPageState extends State<CategoryPage> {
                   final category = categories[index];
                   return GestureDetector(
                     onTap: () {
+                      final page = _getRoomPage(category['title']!);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailsPage(category: category),
-                        ),
+                        MaterialPageRoute(builder: (context) => page),
                       );
                     },
                     child: Card(
@@ -201,7 +218,7 @@ class _CategoryPageState extends State<CategoryPage> {
         backgroundColor: const Color(0xFF2879fe),
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.white,
-        currentIndex: 1, // Set Categories as the selected tab
+        currentIndex: 1,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -218,17 +235,9 @@ class _CategoryPageState extends State<CategoryPage> {
         ],
         onTap: (index) {
           if (index == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const HomePage()),
-            );
-          } else if (index == 1) {
-            // Stay on Categories page
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
           } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfilePage(userData: {},)), // Profile Page Placeholder
-            );
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage(userData: {})));
           }
         },
       ),
