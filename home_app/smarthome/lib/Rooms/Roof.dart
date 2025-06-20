@@ -21,7 +21,7 @@ class _RoofPageState extends State<RoofPage> {
     super.initState();
     loadRoofStatus();
 
-    refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    refreshTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted) {
         loadRoofStatus();
       } else {
@@ -58,11 +58,30 @@ class _RoofPageState extends State<RoofPage> {
       );
       return;
     }
-
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("🔧 Roof command sent (mock)!")),
     );
   }
+     Future<void> triggerBuzzer() async {
+  try {
+    final url = Uri.parse('http://192.168.1.2:3001/cat/roof/buzzer');
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("🔔 Buzzer triggered")),
+      );
+    } else {
+      throw Exception("Failed to trigger buzzer");
+    }
+  } catch (e) {
+    print("Buzzer error: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("⚠️ Buzzer trigger failed")),
+    );
+  }
+}
+
 
   Widget _gridItem(IconData icon, String label, String value,
       {Color? color, Color? iconColor}) {
@@ -236,6 +255,13 @@ class _RoofPageState extends State<RoofPage> {
               icon: Icons.settings,
               color: const Color(0xFF2879fe),
               onPressed: triggerRoofCommand,
+            ),
+            ControlButton(
+              label: "Trigger Buzzer",
+              icon: Icons.notifications,
+              color: Colors.redAccent,
+              iconColor: Colors.white,
+              onPressed: triggerBuzzer,
             ),
           ],
         ),

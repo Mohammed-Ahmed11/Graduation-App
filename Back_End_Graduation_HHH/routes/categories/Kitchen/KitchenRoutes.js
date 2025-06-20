@@ -1,21 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const WebSocket = require("ws");
-const { espClients } = require("../../server/weServer"); // ✅ fixed import
+const { espClients } = require("../../../server/weServer");
+const { kitchenStatus } = require("../../../server/StateStore"); // same instance
 
-// === Current Kitchen State ===
-let kitchenStatus = {
-  fire: null,
-  mq2: null,
-  mq5: null,
-  alert: false,
-  smartOven: false,
-  refigeratorMonitoring: false,
-  DishwasherControl: false,
-};
-
-// ===== HTTP API =====
-
+// ===== HTTP: Get status =====
 router.post("/status", async (req, res) => {
   res.send({
     fire: kitchenStatus.fire,
@@ -25,6 +14,7 @@ router.post("/status", async (req, res) => {
   });
 });
 
+// ===== HTTP: Set device states =====
 router.post("/set", async (req, res) => {
   const { smartOven, refigeratorMonitoring, DishwasherControl } = req.body;
 
@@ -38,24 +28,29 @@ router.post("/set", async (req, res) => {
     DishwasherControl,
   });
 
+  // ✅ Include sensor data + smart device states in response
   res.send({
+    fire: kitchenStatus.fire,
+    mq2: kitchenStatus.mq2,
+    mq5: kitchenStatus.mq5,
+    alert: kitchenStatus.alert,
     oven: kitchenStatus.smartOven,
     refigerator: kitchenStatus.refigeratorMonitoring,
     dishwasher: kitchenStatus.DishwasherControl,
   });
 });
 
-// ✅ Buzzer Trigger with new command structure
+// ===== HTTP: Trigger Buzzer =====
 router.post("/buzzer", async (req, res) => {
   try {
-    const targetESP = espClients.get("kitchen");
+    const targetESP = espClients.get("Smart-Home-1");
 
     if (targetESP && targetESP.readyState === WebSocket.OPEN) {
       const command = {
         room: "kitchen",
         command: "buzzer",
         action: "on",
-        target: "esp", // <-- always specify!
+        target: "esp",
       };
 
       targetESP.send(JSON.stringify(command));
@@ -71,20 +66,4 @@ router.post("/buzzer", async (req, res) => {
   }
 });
 
-// ===== WebSocket Data Handler =====
-function handleKitchenData(data) {
-  try {
-    const { fire, mq2, mq5, alert } = data;
-    kitchenStatus.fire = fire ?? kitchenStatus.fire;
-    kitchenStatus.mq2 = mq2 ?? kitchenStatus.mq2;
-    kitchenStatus.mq5 = mq5 ?? kitchenStatus.mq5;
-    kitchenStatus.alert = alert ?? kitchenStatus.alert;
-
-    console.log("[Kitchen] 🔄 Updated:", kitchenStatus);
-  } catch (err) {
-    console.error("[Kitchen] Error parsing data:", err.message);
-  }
-}
-
 module.exports = router;
-module.exports.handleKitchenData = handleKitchenData;

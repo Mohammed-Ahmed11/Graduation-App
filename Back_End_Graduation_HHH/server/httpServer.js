@@ -2,35 +2,44 @@ const express = require("express");
 const cors = require("cors");
 const db = require("../models");
 
-// Routers
+// ✅ Modular route imports
 const usersRouter = require("../routes/Users");
-const catKitcenRouter = require("../routes/categories/Kitchen");
-const catRoofRouter = require("../routes/categories/Roof");
-const catGarageRouter = require("../routes/categories/Garage");
-const catGardenRouter = require("../routes/categories/Garden");
-const catLivingRoomRouter = require("../routes/categories/LivingRoom");
-const catBedRoomRouter = require("../routes/categories/BedRoom");
+const catKitchenRouter = require("../routes/categories/Kitchen/KitchenRoutes");
+const catRoofRouter = require("../routes/categories/Roof/RoofRoutes");
+const catGarageRouter = require("../routes/categories/Garage/GarageRoutes");
+const catGardenRouter = require("../routes/categories/Garden/GardenRoutes");
+const catLivingRoomRouter = require("../routes/categories/LivingRoom/LivingRoomRoutes");
+const catBedRoomRouter = require("../routes/categories/BedRoom/BedroomRoutes");
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-// Register routes
+// ✅ Base route health check (optional)
+app.get("/", (req, res) => {
+  res.send("Smart Home HTTP Server is running.");
+});
+
+// ✅ Register all API endpoints
 app.use("/auth", usersRouter);
-app.use("/cat/kitchen", catKitcenRouter);
+app.use("/cat/kitchen", catKitchenRouter);
 app.use("/cat/roof", catRoofRouter);
 app.use("/cat/garage", catGarageRouter);
 app.use("/cat/garden", catGardenRouter);
 app.use("/cat/living", catLivingRoomRouter);
 app.use("/cat/bed", catBedRoomRouter);
 
-// Sync DB and export server startup function
+// ✅ Launch and sync database
 const startHttpServer = async () => {
-  await db.sequelize.sync();
-  app.listen(3001, () => {
-    console.log("HTTP Server running on port 3001");
-  });
+  try {
+    await db.sequelize.sync();
+    app.listen(3001, () => {
+      console.log("✅ HTTP Server running on port 3001");
+    });
+  } catch (err) {
+    console.error("❌ Failed to start HTTP server:", err.message);
+  }
 };
 
 module.exports = { startHttpServer };

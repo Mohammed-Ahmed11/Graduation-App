@@ -62,3 +62,4 @@ function handleLivingRoomData(data) {
 
 module.exports = router;
 module.exports.handleLivingRoomData = handleLivingRoomData;
+ 

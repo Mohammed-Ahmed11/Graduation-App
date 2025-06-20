@@ -20,7 +20,7 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
   void initState() {
     super.initState();
     loadLivingStatus();
-    refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    refreshTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted) {
         loadLivingStatus();
       } else {

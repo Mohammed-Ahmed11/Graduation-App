@@ -21,7 +21,7 @@ class _BedroomPageState extends State<BedroomPage> {
     super.initState();
     loadBedroomStatus();
 
-    refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    refreshTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted) {
         loadBedroomStatus();
       } else {

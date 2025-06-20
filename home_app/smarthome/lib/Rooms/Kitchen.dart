@@ -21,7 +21,7 @@ class _KitchenPageState extends State<KitchenPage> {
     super.initState();
     loadKitchenStatus();
 
-    refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    refreshTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted) {
         loadKitchenStatus();
       } else {

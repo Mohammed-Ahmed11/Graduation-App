@@ -21,7 +21,7 @@ class _GaragePageState extends State<GaragePage> {
     super.initState();
     loadGarageStatus();
 
-    refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    refreshTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted) {
         loadGarageStatus();
       } else {
