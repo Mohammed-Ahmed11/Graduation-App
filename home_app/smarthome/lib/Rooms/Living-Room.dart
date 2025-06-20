@@ -1,7 +1,5 @@
-import 'dart:async';
-import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class LivingRoomPage extends StatefulWidget {
   const LivingRoomPage({super.key});
@@ -11,70 +9,61 @@ class LivingRoomPage extends StatefulWidget {
 }
 
 class _LivingRoomPageState extends State<LivingRoomPage> {
-  Map<String, dynamic> livingData = {};
-  bool connected = false;
-  Timer? refreshTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    loadLivingStatus();
-    refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-      if (mounted) loadLivingStatus();
-    });
-  }
-
-  Future<void> loadLivingStatus() async {
-    try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/living/status');
-      final response = await http.post(url);
-
-      if (response.statusCode == 200) {
-        setState(() {
-          livingData = jsonDecode(response.body);
-          connected = true;
-        });
-      } else {
-        throw Exception("Failed to load living room status");
-      }
-    } catch (e) {
-      print("HTTP error: $e");
-      setState(() => connected = false);
-    }
-  }
+  Map<String, dynamic> livingData = {
+    "motion": true,
+    "curtainOpen": false,
+    "fanOn": true,
+    "tvOn": false,
+    "temperature": 24,
+    "emergencyOn": false,
+  };
 
   Future<void> toggleDevice(String device, bool currentState) async {
-    final url = Uri.parse('http://192.168.1.2:3001/cat/living/$device');
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'action': currentState ? 'off' : 'on'}),
-      );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("✅ $device toggled successfully!")),
-        );
-        loadLivingStatus(); // refresh after change
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("❌ Failed to toggle $device")),
-        );
+    setState(() {
+      if (device == "curtain") {
+        livingData["curtainOpen"] = !currentState;
+      } else if (device == "fan") {
+        livingData["fanOn"] = !currentState;
+      } else if (device == "tv") {
+        livingData["tvOn"] = !currentState;
       }
-    } catch (e) {
-      print("[LivingRoomPage] Error toggling $device: $e");
-    }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("✅ $device toggled (mock)!")),
+    );
   }
 
   Future<void> triggerBuzzer() async {
-    await toggleDevice("buzzer", false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("🚨 Emergency alert triggered (mock)!")),
+    );
   }
 
-  @override
-  void dispose() {
-    refreshTimer?.cancel();
-    super.dispose();
+  Widget _gridItem(IconData icon, String label, String value,
+      {Color? color, Color? iconColor}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, size: 28, color: iconColor ?? Colors.white), // 🎯
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: TextStyle(
+            color: color ?? Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey.shade300,
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -88,97 +77,188 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Living Room Status"),
-        backgroundColor: Colors.teal,
+        title: const Text("Living Room Dashboard"),
+        backgroundColor: const Color(0xFF2879fe),
+        elevation: 4,
       ),
-      backgroundColor: const Color(0xFF0d1017),
-      body: connected
-          ? SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+      backgroundColor: const Color(0xFF10141c),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // Room image
+            Container(
+              // margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              height: 160,
+              child: Stack(
                 children: [
-                  // Status Card
-                  Card(
-                    color: emergency == "ACTIVE 🚨"
-                        ? const Color.fromARGB(255, 151, 55, 65)
-                        : Colors.teal.shade100,
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      'assets/images/living_room.jpg',
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Living Room Sensors",
-                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 10),
-                          Text("🏃 Motion: $motion", style: const TextStyle(fontSize: 18)),
-                          Text("🪟 Curtain: ${curtainOpen ? "Open" : "Closed"}", style: const TextStyle(fontSize: 18)),
-                          Text("🌡️ Temperature: $temp°C", style: const TextStyle(fontSize: 18)),
-                          Text("🌀 Fan: ${fanOn ? "On" : "Off"}", style: const TextStyle(fontSize: 18)),
-                          Text("📺 TV: ${tvOn ? "On" : "Off"}", style: const TextStyle(fontSize: 18)),
-                          Text(
-                            "🚨 Emergency: $emergency",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: emergency == "ACTIVE 🚨" ? Colors.red : Colors.green,
-                            ),
-                          ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.4),
+                          Colors.transparent,
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-
-                  // Control Buttons
-                  ControlButton(
-                    label: curtainOpen ? "Close Curtain" : "Open Curtain",
-                    icon: Icons.window,
-                    color: Colors.orange,
-                    onPressed: () => toggleDevice("curtain", curtainOpen),
-                  ),
-                  const SizedBox(height: 12),
-                  ControlButton(
-                    label: fanOn ? "Turn Off Fan" : "Turn On Fan",
-                    icon: Icons.wind_power,
-                    color: Colors.blue,
-                    onPressed: () => toggleDevice("fan", fanOn),
-                  ),
-                  const SizedBox(height: 12),
-                  ControlButton(
-                    label: tvOn ? "Turn Off TV" : "Turn On TV",
-                    icon: Icons.tv,
-                    color: Colors.deepPurple,
-                    onPressed: () => toggleDevice("tv", tvOn),
-                  ),
-                  const SizedBox(height: 12),
-                  ControlButton(
-                    label: "Trigger Emergency Alert",
-                    icon: Icons.volume_up,
-                    color: Colors.red,
-                    onPressed: triggerBuzzer,
-                  ),
-                ],
-              ),
-            )
-          : const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 20),
-                  Text(
-                    "Connecting to living room sensors...",
-                    style: TextStyle(color: Colors.white),
+                  Positioned(
+                    left: 16,
+                    bottom: 16,
+                    child: Text(
+                      "Living Room",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(color: Colors.black, blurRadius: 4),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+            // ⬇️ Frosted Glass STATUS CARD
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  ),
+                  child: GridView.count(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    children: [
+                      _gridItem(
+                        Icons.directions_run,
+                        "Motion",
+                        motion,
+                        iconColor: Colors.orange,
+                      ),
+                      _gridItem(
+                        Icons.window,
+                        "Curtain",
+                        curtainOpen ? "Open" : "Closed",
+                        iconColor: Colors.blue,
+                      ),
+                      _gridItem(
+                        Icons.thermostat,
+                        "Temp",
+                        "$temp°C",
+                        iconColor: Colors.redAccent,
+                      ),
+                      _gridItem(
+                        Icons.wind_power,
+                        "Fan",
+                        fanOn ? "On" : "Off",
+                        iconColor: Colors.teal,
+                      ),
+                      _gridItem(
+                        Icons.tv,
+                        "TV",
+                        tvOn ? "On" : "Off",
+                        iconColor: Colors.deepPurple,
+                      ),
+                      _gridItem(
+                        Icons.warning_amber_rounded,
+                        "Emergency",
+                        emergency,
+                        color: emergency == "ACTIVE 🚨" ? Colors.red : Colors.green,
+                        iconColor: emergency == "ACTIVE 🚨" ? Colors.redAccent : Colors.green,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            // CONTROL BUTTONS
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ControlButton(
+                    label: curtainOpen ? "Close Curtain" : "Open Curtain",
+                    icon: Icons.window,
+                    color: Color(0xFF2879fe),
+                    onPressed: () => toggleDevice("curtain", curtainOpen),
+                  ),
+                  const SizedBox(height: 16),
+                  ControlButton(
+                    label: fanOn ? "Turn Off Fan" : "Turn On Fan",
+                    icon: Icons.wind_power,
+                    color: Color(0xFF2879fe),
+                    // iconColor: Colors.greenAccent,
+                    onPressed: () => toggleDevice("fan", fanOn),
+                  ),
+                  const SizedBox(height: 16),
+                  ControlButton(
+                    label: tvOn ? "Turn Off TV" : "Turn On TV",
+                    icon: Icons.tv,
+                    color: Color(0xFF2879fe),
+                    onPressed: () => toggleDevice("tv", tvOn),
+                  ),
+                  const SizedBox(height: 16),
+                  ControlButton(
+                    label: "Trigger Emergency Alert",
+                    icon: Icons.warning_amber_rounded,
+                    color: Color(0xFF2879fe),
+                    onPressed: triggerBuzzer,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _statusItem(IconData icon, String label, String value, {Color? color}) {
+    return Row(
+      children: [
+        Icon(icon, color: color ?? Colors.black87, size: 24),
+        const SizedBox(width: 12),
+        Text(
+          "$label:",
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: color ?? Colors.black,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -188,6 +268,7 @@ class ControlButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final Color color;
+  final Color? iconColor;
 
   const ControlButton({
     super.key,
@@ -195,19 +276,38 @@ class ControlButton extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     required this.color,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      icon: Icon(icon),
-      label: Text(label),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        textStyle: const TextStyle(fontSize: 18),
+    return Container(
+      width: double.infinity, // ✅ Full screen width
+      margin: const EdgeInsets.symmetric(horizontal: 20), // ✅ Padding on sides
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          elevation: 6,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start, // ✅ Align to left
+          children: [
+            Icon(icon, size: 24, color: iconColor ?? const Color(0xFF10141c),),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
-      onPressed: onPressed,
     );
   }
 }
+
