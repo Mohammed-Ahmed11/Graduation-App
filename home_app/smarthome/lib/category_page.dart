@@ -4,49 +4,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:smarthome/main.dart' as main_app;
 import 'package:smarthome/profile_page.dart';
+import 'package:smarthome/Rooms/Living-Room.dart';
+import 'package:smarthome/Rooms/Kitchen.dart';
+import 'package:smarthome/Rooms/Garage.dart';
+import 'package:smarthome/Rooms/Roof.dart';
+import 'package:smarthome/Rooms/Bedroom.dart';
+import 'package:smarthome/Rooms/Corridor.dart';
+import 'package:smarthome/Rooms/Garden.dart';
 
-// Dummy placeholder room pages:
-class LivingRoomPage extends StatelessWidget {
-  const LivingRoomPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Living Room')));
-}
 
-class KitchenPage extends StatelessWidget {
-  const KitchenPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Kitchen')));
-}
-
-class GaragePage extends StatelessWidget {
-  const GaragePage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Garage')));
-}
-
-class RoofPage extends StatelessWidget {
-  const RoofPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Roof')));
-}
-
-class BedroomPage extends StatelessWidget {
-  const BedroomPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Bedroom')));
-}
-
-class CorridorPage extends StatelessWidget {
-  const CorridorPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Corridor')));
-}
-
-class GardenPage extends StatelessWidget {
-  const GardenPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Garden')));
-}
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});

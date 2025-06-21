@@ -3,21 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smarthome/upload_imge_faceregression.dart';
-
-// Dummy placeholder pages
-class EditProfilePage extends StatelessWidget {
-  final Map<String, String?> userData;
-
-  const EditProfilePage({super.key, required this.userData});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Edit Profile")),
-      body: const Center(child: Text("Edit Profile Page")),
-    );
-  }
-}
+import 'package:smarthome/EditProfilePage.dart';
+import 'package:smarthome/main.dart';
 
 class CategoryPage extends StatelessWidget {
   const CategoryPage({super.key});
@@ -27,18 +14,6 @@ class CategoryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Categories")),
       body: const Center(child: Text("Category Page")),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Home")),
-      body: const Center(child: Text("Home Page")),
     );
   }
 }
