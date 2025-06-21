@@ -4,8 +4,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:smarthome/main.dart' as main_app;
 import 'package:smarthome/profile_page.dart';
-import 'main.dart';
-import 'profile_page.dart';
 
 // Dummy placeholder room pages:
 class LivingRoomPage extends StatelessWidget {
