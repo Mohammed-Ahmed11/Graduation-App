@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:smarthome/ai_assistant.dart';
-import 'package:speech_to_text/speech_to_text.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
