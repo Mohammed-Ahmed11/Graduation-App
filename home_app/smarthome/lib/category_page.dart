@@ -2,19 +2,53 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-import 'details_page.dart';
+import 'package:smarthome/main.dart' as main_app;
+import 'package:smarthome/profile_page.dart';
 import 'main.dart';
 import 'profile_page.dart';
 
-// Import room pages
-import 'Rooms/Kitchen.dart';
-import 'Rooms/Living-Room.dart';
-import 'Rooms/Garage.dart';
-import 'Rooms/Roof.dart';
-import 'Rooms/Bedroom.dart';
-import 'Rooms/Garden.dart';
-import 'Rooms/Corridor.dart';
+// Dummy placeholder room pages:
+class LivingRoomPage extends StatelessWidget {
+  const LivingRoomPage({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Living Room')));
+}
+
+class KitchenPage extends StatelessWidget {
+  const KitchenPage({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Kitchen')));
+}
+
+class GaragePage extends StatelessWidget {
+  const GaragePage({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Garage')));
+}
+
+class RoofPage extends StatelessWidget {
+  const RoofPage({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Roof')));
+}
+
+class BedroomPage extends StatelessWidget {
+  const BedroomPage({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Bedroom')));
+}
+
+class CorridorPage extends StatelessWidget {
+  const CorridorPage({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Corridor')));
+}
+
+class GardenPage extends StatelessWidget {
+  const GardenPage({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Garden')));
+}
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
@@ -27,7 +61,6 @@ class _CategoryPageState extends State<CategoryPage> {
   String username = "User";
   String email = "email@gmail.com";
 
-  // 🌦 Weather data
   String temperature = "--";
   String humidity = "--";
   String windSpeed = "--";
@@ -53,14 +86,11 @@ class _CategoryPageState extends State<CategoryPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token') ?? '';
-
       if (token.isNotEmpty) {
         final parts = token.split('.');
         if (parts.length > 1) {
           String base64Str = parts[1];
-          while (base64Str.length % 4 != 0) {
-            base64Str += '=';
-          }
+          while (base64Str.length % 4 != 0) base64Str += '=';
           final payload = utf8.decode(base64Url.decode(base64Str));
           final payloadMap = jsonDecode(payload);
 
@@ -76,8 +106,8 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future<void> _fetchWeather() async {
-    const apiKey = "78721b86b517b6b91d97f465361178e6"; // 🔐 Replace with your actual OpenWeatherMap API key
-    const city = "Cairo"; // 🌍 Replace with your actual city
+    const apiKey = "78721b86b517b6b91d97f465361178e6"; // Replace with your key
+    const city = "Cairo";
     final url = Uri.parse("https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric");
 
     try {
@@ -89,11 +119,9 @@ class _CategoryPageState extends State<CategoryPage> {
           humidity = "${data['main']['humidity']}%";
           windSpeed = "${data['wind']['speed']} m/s";
         });
-      } else {
-        print("Weather API Error: ${response.statusCode}");
       }
     } catch (e) {
-      print("Failed to fetch weather data: $e");
+      print("Weather fetch error: $e");
     }
   }
 
@@ -109,12 +137,12 @@ class _CategoryPageState extends State<CategoryPage> {
         return const RoofPage();
       case 'Bedroom':
         return const BedroomPage();
-      case 'Garden':
-        return const GardenPage();
       case 'Corridor':
         return const CorridorPage();
+      case 'Garden':
+        return const GardenPage();
       default:
-        return DetailsPage(category: {'title': title, 'image': ''});
+        return const Scaffold(body: Center(child: Text("Room not found")));
     }
   }
 
@@ -130,14 +158,7 @@ class _CategoryPageState extends State<CategoryPage> {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  "Hello, $username",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                Text("Hello, $username", style: const TextStyle(fontSize: 18, color: Colors.white)),
                 const SizedBox(width: 10),
                 const Icon(Icons.person, color: Colors.white),
               ],
@@ -162,16 +183,8 @@ class _CategoryPageState extends State<CategoryPage> {
                 ),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Weather Information",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
+                  const Text("Weather Information", style: TextStyle(fontSize: 20, color: Colors.black)),
                   const SizedBox(height: 10),
                   Text("Temperature: $temperature", style: const TextStyle(color: Colors.black)),
                   Text("Humidity: $humidity", style: const TextStyle(color: Colors.black)),
@@ -181,62 +194,32 @@ class _CategoryPageState extends State<CategoryPage> {
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            "Your Rooms",
-            style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFFEEEEEE),
-            ),
-          ),
+          const Text("Your Rooms", style: TextStyle(fontSize: 25, color: Color(0xFFEEEEEE))),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10),
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
                   final category = categories[index];
                   return GestureDetector(
                     onTap: () {
                       final page = _getRoomPage(category['title']!);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => page),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => page));
                     },
                     child: Card(
                       elevation: 8,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(15),
-                            child: Image.asset(
-                              category['image']!,
-                              fit: BoxFit.cover,
-                            ),
+                            child: Image.asset(category['image']!, fit: BoxFit.cover),
                           ),
-                          Container(
-                            color: Colors.black.withOpacity(0.5),
-                          ),
-                          Center(
-                            child: Text(
-                              category['title']!,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                          Container(color: Colors.black.withOpacity(0.5)),
+                          Center(child: Text(category['title']!, style: const TextStyle(fontSize: 24, color: Colors.white))),
                         ],
                       ),
                     ),
@@ -253,22 +236,13 @@ class _CategoryPageState extends State<CategoryPage> {
         unselectedItemColor: Colors.white,
         currentIndex: 1,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Categories',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Categories'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
         onTap: (index) {
           if (index == 0) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => main_app.HomePage()));
           } else if (index == 2) {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage(userData: {})));
           }
