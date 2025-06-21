@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF2879fe),
         title: const Text(
-          "HYPER HEIM",
+          "HUB HOME HYPER",
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.bold,
