@@ -4,7 +4,7 @@ import 'package:smarthome/chathelper.dart';
 import 'package:smarthome/login_page.dart';
 import 'category_page.dart';
 import 'register_page.dart';
-import 'ai_assistant.dart';
+import 'ai_assistant.dart'; //fff
 
 void main() {
   runApp(const SmartHomeApp());
