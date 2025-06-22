@@ -71,6 +71,7 @@ class _CorridorPageState extends State<CorridorPage> {
 
     if (response.statusCode == 200) {
       _showSnack("✅ Light turned ${isOn ? 'off' : 'on'}!");
+      loadCorridorStatus();
     } else {
       throw Exception("Failed: ${response.statusCode}");
     }
@@ -78,7 +79,6 @@ class _CorridorPageState extends State<CorridorPage> {
     print("Corridor Light error: $e");
     _showSnack("❌ Error: $e");
   }
-  loadCorridorStatus(); // Refresh status after toggling
 }
 
 Future<void> toggleLock() async {
@@ -100,6 +100,7 @@ Future<void> toggleLock() async {
 
     if (response.statusCode == 200) {
       _showSnack("🔒 E-lock ${lockValue ? 'locked' : 'unlocked'}");
+      loadCorridorStatus();
     } else {
       throw Exception("Lock toggle failed: ${response.statusCode}");
     }
@@ -107,7 +108,6 @@ Future<void> toggleLock() async {
     print("E-lock error: $e");
     _showSnack("❌ Error: $e");
   }
-  loadCorridorStatus(); // Refresh status after toggling
 }
 
 
