@@ -10,6 +10,7 @@ const catGarageRouter = require("../routes/categories/Garage/GarageRoutes");
 const catCorridorRouter = require("../routes/categories/Corridor/CorridorRoutes");
 const catLivingRoomRouter = require("../routes/categories/LivingRoom/LivingRoomRoutes");
 const catBedRoomRouter = require("../routes/categories/BedRoom/BedRoomRoutes");
+const catGardenRouter = require("../routes/categories/Garden/GardenRoutes");
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/cat/garage", catGarageRouter);
 app.use("/cat/living", catLivingRoomRouter);
 app.use("/cat/corridor", catCorridorRouter);
 app.use("/cat/bedroom", catBedRoomRouter);
+app.use("/cat/garden", catBedRoomRouter);
 
 // ✅ Launch and sync database
 const startHttpServer = async () => {
