@@ -7,9 +7,9 @@ const usersRouter = require("../routes/Users");
 const catKitchenRouter = require("../routes/categories/Kitchen/KitchenRoutes");
 const catRoofRouter = require("../routes/categories/Roof/RoofRoutes");
 const catGarageRouter = require("../routes/categories/Garage/GarageRoutes");
-const catCorridorRouter = require("../routes/categories/Corridor/CorridorRoutes")
+const catCorridorRouter = require("../routes/categories/Corridor/CorridorRoutes");
 const catLivingRoomRouter = require("../routes/categories/LivingRoom/LivingRoomRoutes");
-const catBedRoomRouter = require("../routes/categories/BedRoom/BedroomRoutes");
+const catBedRoomRouter = require("../routes/categories/BedRoom/BedRoomRoutes");
 
 const app = express();
 

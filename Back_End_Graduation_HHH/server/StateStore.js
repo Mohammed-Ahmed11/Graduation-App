@@ -1,8 +1,8 @@
-const { bedroomStatus } = require("../routes/categories/BedRoom/BedRoomRoutes");
+// const { bedroomStatus } = require("../routes/categories/BedRoom/BedRoomRoutes");
 
 module.exports = {
   kitchenStatus: {
-    fire: null,
+    fire: false,
     mq2: null,
     mq5: null,
     alert: false,
@@ -12,15 +12,15 @@ module.exports = {
     rainDetected: false,
     alert: false,
   },
-    livingRoomStatus: {
-        motion: false,
-        curtainOpen: false,
-        temperature: null,
-        fanOn: false,
-        tvOn: false,
-        emergencyOn: false,
-        lightOn: false,
-    },
+  livingRoomStatus: {
+    motion: false,
+    curtainOpen: false,
+    temperature: null,
+    fanOn: false,
+    tvOn: false,
+    emergencyOn: false,
+    lightOn: false,
+  },
   garageStatus: {
     doorOpen: false,
     motion: false,
@@ -28,16 +28,15 @@ module.exports = {
   },
 
   bedroomStatus: {
-  buzzerEnabled: false,
-  buzzerActive: false,
-},
-    gardenStatus: {
-    },
+    buzzerEnabled: false,
+    buzzerActive: false,
+  },
+  gardenStatus: {},
 
-    corridorStatus:{
-        light: false,
-        elock: null,
-    },
+  corridorStatus: {
+    light: false,
+    elock: null,
+  },
 
   // Add bedroomStatus, livingRoomStatus, etc.
 };
