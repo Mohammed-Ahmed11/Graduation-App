@@ -29,7 +29,7 @@ class FaceRecognitionSystem:
         self.root.geometry("1000x700")
         
         # Node.js server settings
-        self.nodejs_server_ip = "192.168.81.154"
+        self.nodejs_server_ip = "192.168.1.6"
         self.nodejs_server_port = 3001
         
         # Face recognition variables
