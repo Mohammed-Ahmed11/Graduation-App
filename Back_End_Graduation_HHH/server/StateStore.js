@@ -1,5 +1,3 @@
-// const { bedroomStatus } = require("../routes/categories/BedRoom/BedRoomRoutes");
-
 module.exports = {
   kitchenStatus: {
     fire: false,
@@ -23,7 +21,7 @@ module.exports = {
   },
   garageStatus: {
     doorOpen: false,
-    motion: false,
+    motion: true,
     alert: false,
   },
 
@@ -31,12 +29,13 @@ module.exports = {
     buzzerEnabled: false,
     buzzerActive: false,
   },
-  gardenStatus: {},
+  gardenStatus: {
+    soilMoisture: null,
+    irrigationOn: false,
+  },
 
   corridorStatus: {
     light: false,
-    elock: null,
+    elock: false,
   },
-
-  // Add bedroomStatus, livingRoomStatus, etc.
 };
