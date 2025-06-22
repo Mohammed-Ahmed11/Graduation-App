@@ -27,27 +27,16 @@ module.exports = {
     alert: false,
   },
 
-  bedroomStatus:{
-    motion: false,
-    temperature: null,
-    fanOn: false,
-    lightOn: false,
-    emergencyOn: false,
-  },
+  bedroomStatus: {
+  buzzerEnabled: false,
+  buzzerActive: false,
+},
     gardenStatus: {
-        motion: false,
-        temperature: null,
-        fanOn: false,
-        lightOn: false,
-        emergencyOn: false,
     },
 
     corridorStatus:{
-        motion: false,
-        temperature: null,
-        fanOn: false,
-        lightOn: false,
-        emergencyOn: false,
+        light: false,
+        elock: null,
     },
 
   // Add bedroomStatus, livingRoomStatus, etc.

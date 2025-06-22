@@ -82,6 +82,33 @@ class _GaragePageState extends State<GaragePage> {
     }
   }
 
+  Future<void> openGarageDoor() async {
+    if (!connected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ No connection. Cannot open garage door.")),
+      );
+      return;
+    }
+
+    try {
+      final url = Uri.parse('http://192.168.1.2:3001/cat/garage/open');
+      final response = await http.post(url);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("🚪 Garage door command sent")),
+        );
+      } else {
+        throw Exception("Garage open failed: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Garage open error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ Error: $e")),
+      );
+    }
+  }
+
   Widget _gridItem(IconData icon, String label, String value,
       {Color? color, Color? iconColor}) {
     return Column(
@@ -116,9 +143,9 @@ class _GaragePageState extends State<GaragePage> {
 
   @override
   Widget build(BuildContext context) {
-    final light = connected ? (garageData["light"] == true ? "On" : "Off") : "N/A";
-    final motion = connected ? (garageData["motion"] == true ? "Detected" : "None") : "N/A";
-    final door = connected ? (garageData["doorOpen"] == true ? "Open" : "Closed") : "N/A";
+    final door = connected
+        ? (garageData["door"]?.toString().toLowerCase() == "open" ? "Open" : "Closed")
+        : "N/A";
 
     return Scaffold(
       appBar: AppBar(
@@ -210,14 +237,10 @@ class _GaragePageState extends State<GaragePage> {
                   child: GridView.count(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    crossAxisCount: 3,
+                    crossAxisCount: 1,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
                     children: [
-                      _gridItem(Icons.lightbulb, "Light", light,
-                          iconColor: Colors.amber),
-                      _gridItem(Icons.directions_run, "Motion", motion,
-                          iconColor: Colors.orange),
                       _gridItem(Icons.garage, "Door", door,
                           iconColor: Colors.blue),
                     ],
@@ -228,12 +251,20 @@ class _GaragePageState extends State<GaragePage> {
 
             const SizedBox(height: 32),
 
-            // 🚨 Control Button
             ControlButton(
               label: "Trigger Buzzer",
               icon: Icons.warning,
               color: Colors.redAccent,
               onPressed: triggerBuzzer,
+            ),
+
+            const SizedBox(height: 12),
+
+            ControlButton(
+              label: "Open Garage Door",
+              icon: Icons.garage_outlined,
+              color: Colors.blueAccent,
+              onPressed: openGarageDoor,
             ),
           ],
         ),

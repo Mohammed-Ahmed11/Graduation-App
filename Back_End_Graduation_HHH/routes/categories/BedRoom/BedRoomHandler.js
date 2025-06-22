@@ -1,14 +1,23 @@
-const { bedroomStatus } = require("./BedRoomRoutes");
+// === handlers/bedroomHandler.js ===
+const { bedroomStatus } = require("../../../server/StateStore");
 
-function handleBedRoomData(data) {
+function handleBedroomData(data) {
   try {
-    bedroomStatus.lightOn = data.lightOn ?? bedroomStatus.lightOn;
-    bedroomStatus.acOn = data.acOn ?? bedroomStatus.acOn;
+    if (data.buzzer_enabled !== undefined) {
+      bedroomStatus.buzzerEnabled = data.buzzer_enabled;
+    }
+
+    if (data.buzzer_active !== undefined) {
+      bedroomStatus.buzzerActive = data.buzzer_active;
+    }
 
     console.log("[Bedroom] 🔄 Updated from ESP:", bedroomStatus);
   } catch (err) {
-    console.error("[Bedroom] ❌ Handler Error:", err.message);
+    console.error("[Bedroom] Error in data handler:", err.message);
   }
 }
 
-module.exports = { handleBedRoomData };
+module.exports = {
+  handleBedroomData,
+  bedroomStatus,
+};

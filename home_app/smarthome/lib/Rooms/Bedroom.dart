@@ -53,9 +53,7 @@ class _BedroomPageState extends State<BedroomPage> {
 
   Future<void> triggerBuzzer() async {
     if (!connected) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ No connection. Cannot trigger buzzer.")),
-      );
+      _showSnack("⚠️ No connection. Cannot trigger buzzer.");
       return;
     }
 
@@ -68,18 +66,20 @@ class _BedroomPageState extends State<BedroomPage> {
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Buzzer command sent!")),
-        );
+        _showSnack("✅ Buzzer command sent!");
       } else {
         throw Exception("Failed: ${response.statusCode}");
       }
     } catch (e) {
       print("Bedroom Buzzer error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Error: $e")),
-      );
+      _showSnack("❌ Error: $e");
     }
+  }
+
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   Widget _gridItem(IconData icon, String label, String value,
@@ -116,8 +116,12 @@ class _BedroomPageState extends State<BedroomPage> {
 
   @override
   Widget build(BuildContext context) {
-    final light = connected ? (bedroomData["light"] == true ? "On" : "Off") : "N/A";
-    final motion = connected ? (bedroomData["motion"] == true ? "Detected" : "None") : "N/A";
+    final light = connected
+        ? (bedroomData["light"] == true ? "On" : "Off")
+        : "N/A";
+    final motion = connected
+        ? (bedroomData["motion"] == true ? "Detected" : "None")
+        : "N/A";
 
     return Scaffold(
       appBar: AppBar(
@@ -147,7 +151,7 @@ class _BedroomPageState extends State<BedroomPage> {
                 ),
               ),
 
-            // 🛏 Room image
+            // 🛏 Bedroom banner
             Container(
               height: 160,
               child: Stack(
@@ -193,7 +197,7 @@ class _BedroomPageState extends State<BedroomPage> {
 
             const SizedBox(height: 20),
 
-            // 🌫 Frosted sensor card
+            // 🌫 Sensor panel
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: BackdropFilter(
@@ -225,7 +229,7 @@ class _BedroomPageState extends State<BedroomPage> {
 
             const SizedBox(height: 32),
 
-            // 🔔 Buzzer button
+            // 🔔 Control
             ControlButton(
               label: "Trigger Buzzer",
               icon: Icons.volume_up,

@@ -51,35 +51,67 @@ class _CorridorPageState extends State<CorridorPage> {
     }
   }
 
-  Future<void> turnOnLight() async {
-    if (!connected) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ No connection. Cannot control light.")),
-      );
-      return;
-    }
+  Future<void> toggleLight() async {
+  if (!connected) {
+    _showSnack("⚠️ No connection. Cannot control light.");
+    return;
+  }
 
-    try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/corridor/light');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'action': 'on'}),
-      );
+  final isOn = corridorData["light"] == true;
+  final mode = isOn ? "off" : "on";
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Light turned on!")),
-        );
-      } else {
-        throw Exception("Failed: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("Corridor Light error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Error: $e")),
-      );
+  try {
+    final url = Uri.parse('http://192.168.1.2:3001/cat/corridor/light');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'mode': mode}),
+    );
+
+    if (response.statusCode == 200) {
+      _showSnack("✅ Light turned ${isOn ? 'off' : 'on'}!");
+    } else {
+      throw Exception("Failed: ${response.statusCode}");
     }
+  } catch (e) {
+    print("Corridor Light error: $e");
+    _showSnack("❌ Error: $e");
+  }
+  loadCorridorStatus(); // Refresh status after toggling
+}
+
+Future<void> toggleLock() async {
+  if (!connected) {
+    _showSnack("⚠️ No connection. Cannot control E-lock.");
+    return;
+  }
+
+  final isLocked = corridorData["elock"] == true;
+  final lockValue = !isLocked;
+
+  try {
+    final url = Uri.parse('http://192.168.1.2:3001/cat/corridor/elock');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'lock': lockValue}),
+    );
+
+    if (response.statusCode == 200) {
+      _showSnack("🔒 E-lock ${lockValue ? 'locked' : 'unlocked'}");
+    } else {
+      throw Exception("Lock toggle failed: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("E-lock error: $e");
+    _showSnack("❌ Error: $e");
+  }
+  loadCorridorStatus(); // Refresh status after toggling
+}
+
+
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Widget _gridItem(IconData icon, String label, String value,
@@ -116,8 +148,12 @@ class _CorridorPageState extends State<CorridorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final motion = connected ? (corridorData["motion"] == true ? "Detected" : "None") : "N/A";
-    final light = connected ? (corridorData["light"] == true ? "On" : "Off") : "N/A";
+    final motion = connected
+        ? (corridorData["motion"] == true ? "Detected" : "None")
+        : "N/A";
+    final light = connected
+        ? (corridorData["light"] == true ? "On" : "Off")
+        : "N/A";
 
     return Scaffold(
       appBar: AppBar(
@@ -147,7 +183,7 @@ class _CorridorPageState extends State<CorridorPage> {
                 ),
               ),
 
-            // 🖼️ Corridor image
+            // 🖼️ Image banner
             Container(
               height: 140,
               child: Stack(
@@ -193,7 +229,7 @@ class _CorridorPageState extends State<CorridorPage> {
 
             const SizedBox(height: 20),
 
-            // 🌫 Sensor panel
+            // 🌫 Sensor Grid
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: BackdropFilter(
@@ -216,7 +252,7 @@ class _CorridorPageState extends State<CorridorPage> {
                       _gridItem(Icons.directions_run, "Motion", motion,
                           iconColor: Colors.orange),
                       _gridItem(Icons.lightbulb, "Light", light,
-                          iconColor: Colors.yellow),
+                          iconColor: Colors.amber),
                     ],
                   ),
                 ),
@@ -225,12 +261,26 @@ class _CorridorPageState extends State<CorridorPage> {
 
             const SizedBox(height: 30),
 
-            // 💡 Light control
-            ControlButton(
-              label: "Turn On Light",
-              icon: Icons.lightbulb,
-              color: Colors.amber.shade700,
-              onPressed: turnOnLight,
+           ControlButton(
+            label: (corridorData["light"] == true) ? "Turn Off Light" : "Turn On Light",
+            icon: (corridorData["light"] == true)
+            ? Icons.lightbulb
+            : Icons.lightbulb_outline,
+            color: Colors.amber.shade700,
+            onPressed: toggleLight,
+            ),
+
+          const SizedBox(height: 12),
+
+          ControlButton(
+            label: (corridorData["elock"] == true) ? "Unlock E-Lock" : "Lock E-Lock",
+            icon: (corridorData["elock"] == true)
+            ? Icons.lock_open
+            : Icons.lock_outline,
+            color: (corridorData["elock"] == true)
+            ? Colors.green.shade600
+            : Colors.red.shade600,
+            onPressed: toggleLock,
             ),
           ],
         ),

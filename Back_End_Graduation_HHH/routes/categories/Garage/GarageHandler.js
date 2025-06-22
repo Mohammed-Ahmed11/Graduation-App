@@ -1,14 +1,19 @@
-const { garageStatus } = require("./GarageRoutes");
+// === handlers/garageHandler.js ===
+const { garageStatus } = require("../../../server/StateStore");
 
 function handleGarageData(data) {
   try {
-    garageStatus.doorOpen = data.doorOpen ?? garageStatus.doorOpen;
-    garageStatus.carInside = data.carInside ?? garageStatus.carInside;
+    const { garage_door } = data;
+
+    if (garage_door !== undefined) garageStatus.door = garage_door;
 
     console.log("[Garage] 🔄 Updated from ESP:", garageStatus);
   } catch (err) {
-    console.error("[Garage] ❌ Handler Error:", err.message);
+    console.error("[Garage] Error in data handler:", err.message);
   }
 }
 
-module.exports = { handleGarageData };
+module.exports = {
+  handleGarageData,
+  garageStatus,
+};

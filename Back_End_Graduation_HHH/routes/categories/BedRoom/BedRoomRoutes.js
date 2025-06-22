@@ -2,52 +2,33 @@ const express = require("express");
 const router = express.Router();
 const WebSocket = require("ws");
 const { espClients } = require("../../../server/weServer");
+const { bedroomStatus } = require("../../../server/StateStore");
 
-let bedroomStatus = {
-  lightOn: false,
-  acOn: false,
-};
-
-// === Get Bedroom Status ===
-router.post("/status", async (req, res) => {
+router.post("/status", (req, res) => {
   res.send(bedroomStatus);
 });
 
-// === Manually Control Bedroom Devices ===
-router.post("/set", async (req, res) => {
-  const { lightOn, acOn } = req.body;
+router.post("/alarm", (req, res) => {
+  const { enable } = req.body;
 
-  if (lightOn !== undefined) bedroomStatus.lightOn = lightOn;
-  if (acOn !== undefined) bedroomStatus.acOn = acOn;
+  if (typeof enable === "boolean") {
+    const command = {
+      room: "bedroom",
+      command: "alarm",
+      action: enable ? "on" : "off",
+      target: "uno2",
+    };
 
-  console.log("[Bedroom] ✅ Updated via HTTP:", bedroomStatus);
-  res.send(bedroomStatus);
-});
- 
-// === Optional: Trigger AC or Light via ESP ===
-router.post("/trigger", async (req, res) => {
-  try {
-    const targetESP = espClients.get("Smart-Home-1");
-
-    if (targetESP && targetESP.readyState === WebSocket.OPEN) {
-      const command = {
-        room: "bed",
-        target: "esp",
-        command: req.body.command,  // e.g. "light_toggle", "ac_toggle"
-        action: req.body.action || "toggle"
-      };
-
-      targetESP.send(JSON.stringify(command));
-      console.log("[Bedroom] 📲 Command sent:", command);
-      res.json({ success: true, message: "Command sent" });
+    const esp = espClients.get("Smart-Home-1");
+    if (esp && esp.readyState === WebSocket.OPEN) {
+      esp.send(JSON.stringify(command));
+      res.json({ success: true, message: "Alarm toggled" });
     } else {
       res.status(503).json({ success: false, message: "ESP not connected" });
     }
-  } catch (err) {
-    console.error("[Bedroom] Command Error:", err.message);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+  } else {
+    res.status(400).json({ success: false, message: "Missing 'enable' boolean" });
   }
 });
 
 module.exports = router;
-module.exports.bedroomStatus = bedroomStatus;

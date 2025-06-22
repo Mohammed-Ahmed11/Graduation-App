@@ -5,8 +5,9 @@ const { handleKitchenData } = require("../routes/categories/kitchen/KitchenHandl
 const { handleRoofData } = require("../routes/categories/Roof/RoofHandler");
 const { handleGarageData } = require("../routes/categories/Garage/GarageHandler");
 const { handleGardenData } = require("../routes/categories/Garden/GardenHandler");
+const { handleCorridorData } = require("../routes/categories/Corridor/CorridorHandler");
 const { handleLivingRoomData } = require("../routes/categories/LivingRoom/LivingRoomHandler");
-const { handleBedRoomData } = require("../routes/categories/BedRoom/BedroomHandler");
+const { handleBedroomData } = require("../routes/categories/BedRoom/BedroomHandler");
 
 // 🌐 Connected clients
 const espClients = new Map();  // room -> WebSocket
@@ -15,10 +16,11 @@ const appClients = new Set();  // Set of Web/App sockets
 const roomHandlers = {
   kitchen: handleKitchenData,
   roof: handleRoofData,
-  garage: handleGarageData,
   garden: handleGardenData,
   living: handleLivingRoomData,
-  bed: handleBedRoomData,
+  corridor: handleCorridorData,
+  bedroom: handleBedroomData,
+  garage: handleGarageData,
 };
 
 const startWebSocketServer = () => {
