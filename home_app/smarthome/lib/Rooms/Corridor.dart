@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../requestConfig.dart';
 
 class CorridorPage extends StatefulWidget {
   const CorridorPage({super.key});
@@ -32,7 +33,7 @@ class _CorridorPageState extends State<CorridorPage> {
 
   Future<void> loadCorridorStatus() async {
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/corridor/status');
+      final url = Uri.parse('$baseUrl/cat/corridor/status');
       final response = await http.post(url);
 
       if (response.statusCode == 200) {
@@ -61,7 +62,7 @@ class _CorridorPageState extends State<CorridorPage> {
   final mode = isOn ? "off" : "on";
 
   try {
-    final url = Uri.parse('http://192.168.1.2:3001/cat/corridor/light');
+    final url = Uri.parse('$baseUrl/cat/corridor/light');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -90,7 +91,7 @@ Future<void> toggleLock() async {
   final lockValue = !isLocked;
 
   try {
-    final url = Uri.parse('http://192.168.1.2:3001/cat/corridor/elock');
+    final url = Uri.parse('$baseUrl/cat/corridor/elock');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../requestConfig.dart';
 
 class KitchenPage extends StatefulWidget {
   const KitchenPage({super.key});
@@ -32,7 +33,7 @@ class _KitchenPageState extends State<KitchenPage> {
 
   Future<void> loadKitchenStatus() async {
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/kitchen/status');
+      final url = Uri.parse('$baseUrl/cat/kitchen/status');
       final response = await http.post(url);
 
       if (response.statusCode == 200) {
@@ -60,7 +61,7 @@ class _KitchenPageState extends State<KitchenPage> {
     }
 
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/kitchen/buzzer');
+      final url = Uri.parse('$baseUrl/cat/kitchen/buzzer');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},

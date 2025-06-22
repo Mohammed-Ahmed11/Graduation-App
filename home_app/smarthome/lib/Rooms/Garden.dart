@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import '../requestConfig.dart';
 class GardenPage extends StatefulWidget {
   const GardenPage({super.key});
 
@@ -32,7 +32,7 @@ class _GardenPageState extends State<GardenPage> {
 
   Future<void> loadGardenStatus() async {
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/garden/status');
+      final url = Uri.parse('$baseUrl/cat/garden/status');
       final response = await http.post(url);
 
       if (response.statusCode == 200) {
@@ -60,7 +60,7 @@ class _GardenPageState extends State<GardenPage> {
     }
 
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/garden/sprinkler');
+      final url = Uri.parse('$baseUrl/cat/garden/sprinkler');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
