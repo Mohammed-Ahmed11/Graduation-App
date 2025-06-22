@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../requestConfig.dart';
 
 class LivingRoomPage extends StatefulWidget {
   const LivingRoomPage({super.key});
@@ -31,7 +32,7 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
 
   Future<void> loadLivingStatus() async {
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/living/status');
+      final url = Uri.parse('$baseUrl/cat/living/status');
       final response = await http.post(url);
 
       if (response.statusCode == 200) {
@@ -61,7 +62,7 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
     }
 
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/living/set');
+      final url = Uri.parse('$baseUrl/cat/living/set');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -88,7 +89,7 @@ class _LivingRoomPageState extends State<LivingRoomPage> {
     }
 
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/living/buzzer');
+      final url = Uri.parse('$baseUrl/cat/living/buzzer');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},

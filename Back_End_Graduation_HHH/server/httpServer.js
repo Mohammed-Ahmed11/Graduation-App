@@ -40,6 +40,6 @@ const startHttpServer = async () => {
   } catch (err) {
     console.error("❌ Failed to start HTTP server:", err.message);
   }
-};
+}; 
 
 module.exports = { startHttpServer };

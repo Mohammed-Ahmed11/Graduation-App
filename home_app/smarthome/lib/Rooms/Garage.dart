@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../requestConfig.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
@@ -32,7 +33,7 @@ class _GaragePageState extends State<GaragePage> {
 
   Future<void> loadGarageStatus() async {
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/garage/status');
+      final url = Uri.parse('$baseUrl/cat/garage/status');
       final response = await http.post(url);
 
       if (response.statusCode == 200) {
@@ -60,7 +61,7 @@ class _GaragePageState extends State<GaragePage> {
     }
 
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/garage/buzzer');
+      final url = Uri.parse('$baseUrl/cat/garage/buzzer');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -91,7 +92,7 @@ class _GaragePageState extends State<GaragePage> {
     }
 
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/garage/open');
+      final url = Uri.parse('$baseUrl/cat/garage/open');
       final response = await http.post(url);
 
       if (response.statusCode == 200) {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../requestConfig.dart';
 
 class RoofPage extends StatefulWidget {
   const RoofPage({super.key});
@@ -32,7 +33,7 @@ class _RoofPageState extends State<RoofPage> {
 
   Future<void> loadRoofStatus() async {
     try {
-      final url = Uri.parse('http://192.168.1.2:3001/cat/roof/status');
+      final url = Uri.parse('$baseUrl/cat/roof/status');
       final response = await http.post(url);
 
       if (response.statusCode == 200) {
@@ -64,7 +65,7 @@ class _RoofPageState extends State<RoofPage> {
   }
      Future<void> triggerBuzzer() async {
   try {
-    final url = Uri.parse('http://192.168.1.2:3001/cat/roof/buzzer');
+    final url = Uri.parse('$baseUrl/cat/roof/buzzer');
     final response = await http.post(url);
 
     if (response.statusCode == 200) {
