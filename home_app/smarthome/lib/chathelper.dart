@@ -588,7 +588,7 @@ class VoiceControlApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
+       // GlobalWidgetLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: [
@@ -601,35 +601,163 @@ class VoiceControlApp extends StatelessWidget {
 }
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.43.58:3000/api';
+  static const String baseUrl = 'http://192.168.81.154:3001/cat'; // Updated to match your existing servers
 
-  static Future<Map<String, dynamic>> getAllDevices() async {
+  // Add timeout for all requests
+  static const Duration timeoutDuration = Duration(seconds: 5);
+
+  // Corridor API calls
+  static Future<Map<String, dynamic>> getCorridorStatus() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/devices'));
+      print('🔄 Checking corridor status...');
+      final response = await http.post(
+        Uri.parse('$baseUrl/corridor/status'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(timeoutDuration);
+      
+      print('📡 Corridor status response: ${response.statusCode}');
+      print('📡 Corridor status body: ${response.body}');
+      
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return {'success': true, 'data': json.decode(response.body)};
       }
-      throw Exception('Failed to load devices');
+      throw Exception('Failed to load corridor status - Status: ${response.statusCode}');
     } catch (e) {
-      print('Error getting devices: $e');
-      return {'success': false, 'devices': {}};
+      print('❌ Error getting corridor status: $e');
+      return {'success': false, 'error': e.toString()};
     }
   }
 
-  static Future<Map<String, dynamic>> updateDevice(String deviceId, String action) async {
+  static Future<Map<String, dynamic>> controlCorridorLight(String mode) async {
     try {
+      print('💡 Controlling corridor light: $mode');
       final response = await http.post(
-        Uri.parse('$baseUrl/devices/$deviceId'),
+        Uri.parse('$baseUrl/corridor/light'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'action': action}),
-      );
+        body: json.encode({'mode': mode}),
+      ).timeout(timeoutDuration);
+      
+      print('📡 Light control response: ${response.statusCode}');
+      print('📡 Light control body: ${response.body}');
+      
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return {'success': true, 'message': 'Light $mode successfully'};
       }
-      throw Exception('Failed to update device');
+      throw Exception('Failed to control light - Status: ${response.statusCode}');
     } catch (e) {
-      print('Error updating device: $e');
-      return {'success': false};
+      print('❌ Error controlling corridor light: $e');
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> controlCorridorLock(bool lock) async {
+    try {
+      print('🔒 Controlling corridor lock: ${lock ? 'lock' : 'unlock'}');
+      final response = await http.post(
+        Uri.parse('$baseUrl/corridor/elock'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'lock': lock}),
+      ).timeout(timeoutDuration);
+      
+      print('📡 Lock control response: ${response.statusCode}');
+      print('📡 Lock control body: ${response.body}');
+      
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': 'E-lock ${lock ? 'locked' : 'unlocked'} successfully'};
+      }
+      throw Exception('Failed to control lock - Status: ${response.statusCode}');
+    } catch (e) {
+      print('❌ Error controlling corridor lock: $e');
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  // Garage API calls
+  static Future<Map<String, dynamic>> getGarageStatus() async {
+    try {
+      print('🔄 Checking garage status...');
+      final response = await http.post(
+        Uri.parse('$baseUrl/garage/status'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(timeoutDuration);
+      
+      print('📡 Garage status response: ${response.statusCode}');
+      print('📡 Garage status body: ${response.body}');
+      
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': json.decode(response.body)};
+      }
+      throw Exception('Failed to load garage status - Status: ${response.statusCode}');
+    } catch (e) {
+      print('❌ Error getting garage status: $e');
+      return {'success': false, 'error': e.toString()};
+    }
+  }
+
+  static Future<Map<String, dynamic>> triggerGarageBuzzer() async {
+    try {
+      print('🔔 Triggering garage buzzer...');
+      final response = await http.post(
+        Uri.parse('$baseUrl/garage/buzzer'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'action': 'on'}),
+      ).timeout(timeoutDuration);
+      
+      print('📡 Buzzer response: ${response.statusCode}');
+      print('📡 Buzzer body: ${response.body}');
+      
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': 'Buzzer triggered successfully'};
+      }
+      throw Exception('Failed to trigger buzzer - Status: ${response.statusCode}');
+    } catch (e) {
+      print('❌ Error triggering garage buzzer: $e');
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> openGarageDoor() async {
+    try {
+      print('🚪 Opening garage door...');
+      final response = await http.post(
+        Uri.parse('$baseUrl/garage/open'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(timeoutDuration);
+      
+      print('📡 Door response: ${response.statusCode}');
+      print('📡 Door body: ${response.body}');
+      
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': 'Garage door opened successfully'};
+      }
+      throw Exception('Failed to open garage door - Status: ${response.statusCode}');
+    } catch (e) {
+      print('❌ Error opening garage door: $e');
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  // Test connection method
+  static Future<bool> testConnection() async {
+    try {
+      print('🔍 Testing server connection...');
+      final corridorResult = await getCorridorStatus();
+      if (corridorResult['success']) {
+        print('✅ Corridor server is reachable');
+        return true;
+      }
+      
+      final garageResult = await getGarageStatus();
+      if (garageResult['success']) {
+        print('✅ Garage server is reachable');
+        return true;
+      }
+      
+      print('❌ Both servers are unreachable');
+      return false;
+    } catch (e) {
+      print('❌ Connection test failed: $e');
+      return false;
     }
   }
 }
@@ -639,6 +767,7 @@ class Device {
   final String nameAr;
   final String nameEn;
   final String type;
+  final String action; // New field for specific actions
   bool isOn;
   final List<String> keywordsAr;
   final List<String> keywordsEn;
@@ -648,6 +777,7 @@ class Device {
     required this.nameAr,
     required this.nameEn,
     required this.type,
+    required this.action,
     this.isOn = false,
     required this.keywordsAr,
     required this.keywordsEn,
@@ -700,8 +830,66 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
   bool _isConnected = false;
   Timer? _syncTimer;
   String _selectedLocale = 'ar-SA'; // Default language
+  String _connectionError = '';
 
   List<Room> rooms = [
+    // Corridor Room
+    Room(
+      id: 'corridor',
+      nameAr: 'الممر',
+      nameEn: 'Corridor',
+      keywordsAr: ['الممر', 'ممر', 'الطرقة', 'الدهليز'],
+      keywordsEn: ['corridor', 'hallway', 'passage'],
+      devices: [
+        Device(
+          id: 'corridor_light',
+          nameAr: 'إضاءة الممر',
+          nameEn: 'Corridor Light',
+          type: 'light',
+          action: 'light',
+          keywordsAr: ['إضاءة', 'نور', 'أنوار', 'لمبة', 'الضوء', 'ضوء الممر'],
+          keywordsEn: ['light', 'lamp', 'illumination', 'lighting', 'corridor light'],
+        ),
+        Device(
+          id: 'corridor_elock',
+          nameAr: 'القفل الإلكتروني',
+          nameEn: 'Electronic Lock',
+          type: 'lock',
+          action: 'elock',
+          keywordsAr: ['قفل', 'القفل', 'قفل إلكتروني', 'إلكتروني', 'الباب', 'قفل الباب'],
+          keywordsEn: ['lock', 'electronic lock', 'elock', 'door lock', 'smart lock'],
+        ),
+      ],
+    ),
+    // Garage Room
+    Room(
+      id: 'garage',
+      nameAr: 'الجراج',
+      nameEn: 'Garage',
+      keywordsAr: ['الجراج', 'الكراج', 'الموقف', 'موقف السيارات', 'جراج'],
+      keywordsEn: ['garage', 'parking', 'car space'],
+      devices: [
+        Device(
+          id: 'garage_door',
+          nameAr: 'باب الجراج',
+          nameEn: 'Garage Door',
+          type: 'door',
+          action: 'door',
+          keywordsAr: ['باب', 'الباب', 'باب الجراج', 'فتح الباب'],
+          keywordsEn: ['door', 'garage door', 'open door'],
+        ),
+        Device(
+          id: 'garage_buzzer',
+          nameAr: 'جرس الجراج',
+          nameEn: 'Garage Buzzer',
+          type: 'buzzer',
+          action: 'buzzer',
+          keywordsAr: ['جرس', 'الجرس', 'بزر', 'تنبيه', 'صوت', 'منبه'],
+          keywordsEn: ['buzzer', 'alarm', 'bell', 'sound', 'alert'],
+        ),
+      ],
+    ),
+    // Keep existing rooms
     Room(
       id: 'living_room',
       nameAr: 'غرفة المعيشة',
@@ -714,189 +902,9 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
           nameAr: 'إضاءة غرفة المعيشة',
           nameEn: 'Living Room Light',
           type: 'light',
+          action: 'general',
           keywordsAr: ['إضاءة', 'نور', 'أنوار', 'لمبة', 'الضوء', 'ضوء الغرفة'],
           keywordsEn: ['light', 'lamp', 'illumination', 'lighting', 'room light'],
-        ),
-        Device(
-          id: 'living_tv',
-          nameAr: 'تلفزيون غرفة المعيشة',
-          nameEn: 'Living Room TV',
-          type: 'tv',
-          keywordsAr: ['تلفزيون', 'تليفزيون', 'شاشة', 'تي في', 'tv', 'تلفاز'],
-          keywordsEn: ['tv', 'television', 'screen', 'smart tv'],
-        ),
-        Device(
-          id: 'living_ac',
-          nameAr: 'مكيف غرفة المعيشة',
-          nameEn: 'Living Room AC',
-          type: 'ac',
-          keywordsAr: ['مكيف', 'تكييف', 'تبريد', 'هواء بارد', 'الهواء', 'المروحة'],
-          keywordsEn: ['ac', 'air conditioner', 'cooling', 'cold air', 'climate'],
-        ),
-        Device(
-          id: 'living_curtains',
-          nameAr: 'ستائر غرفة المعيشة',
-          nameEn: 'Living Room Curtains',
-          type: 'curtain',
-          keywordsAr: ['ستائر', 'ستارة', 'الستارة', 'فتح الستارة', 'قفل الستارة'],
-          keywordsEn: ['curtain', 'curtains', 'drapes', 'open curtain', 'close curtain'],
-        ),
-      ],
-    ),
-    Room(
-      id: 'kitchen',
-      nameAr: 'المطبخ',
-      nameEn: 'Kitchen',
-      keywordsAr: ['المطبخ', 'مطبخ', 'الطبخ', 'موقع الطبخ'],
-      keywordsEn: ['kitchen', 'cooking', 'cook area'],
-      devices: [
-        Device(
-          id: 'kitchen_oven',
-          nameAr: 'فرن ذكي',
-          nameEn: 'Smart Oven',
-          type: 'oven',
-          keywordsAr: ['فرن', 'الفرن', 'ذكي', 'خبز', 'تسخين الطعام', 'تحميص'],
-          keywordsEn: ['oven', 'smart oven', 'bake', 'cooking', 'toaster'],
-        ),
-        Device(
-          id: 'kitchen_fridge',
-          nameAr: 'مراقبة الثلاجة',
-          nameEn: 'Refrigerator Monitoring',
-          type: 'fridge_monitor',
-          keywordsAr: ['ثلاجة', 'مراقبة', 'تبريد', 'براد', 'درجة الحرارة', 'الثلاجة'],
-          keywordsEn: ['fridge', 'refrigerator', 'monitoring', 'cooling', 'temperature'],
-        ),
-        Device(
-          id: 'kitchen_dishwasher',
-          nameAr: 'التحكم في غسالة الصحون',
-          nameEn: 'Dishwasher Control',
-          type: 'dishwasher',
-          keywordsAr: ['غسالة', 'غسالة الصحون', 'الصحون', 'تنظيف الصحون', 'الجلاية'],
-          keywordsEn: ['dishwasher', 'plate washer', 'wash dishes', 'clean dishes'],
-        ),
-      ],
-    ),
-    Room(
-      id: 'garage',
-      nameAr: 'الجراج',
-      nameEn: 'Garage',
-      keywordsAr: ['الجراج', 'الكراج', 'الموقف', 'موقف السيارات'],
-      keywordsEn: ['garage', 'parking', 'car space'],
-      devices: [
-        Device(
-          id: 'garage_door',
-          nameAr: 'باب أوتوماتيكي',
-          nameEn: 'Automatic Door',
-          type: 'door',
-          keywordsAr: ['باب', 'الباب', 'فتح الباب', 'قفل الباب', 'باب الجراج'],
-          keywordsEn: ['door', 'automatic door', 'garage door', 'open door', 'close door'],
-        ),
-        Device(
-          id: 'garage_light',
-          nameAr: 'إضاءة الجراج',
-          nameEn: 'Garage Light',
-          type: 'light',
-          keywordsAr: ['إضاءة', 'نور', 'لمبة', 'أنوار', 'الضوء', 'ضوء الجراج'],
-          keywordsEn: ['light', 'lamp', 'illumination', 'garage light'],
-        ),
-        Device(
-          id: 'garage_charger',
-          nameAr: 'شحن السيارة',
-          nameEn: 'Car Charging',
-          type: 'charger',
-          keywordsAr: ['شحن', 'شحن السيارة', 'السيارة', 'بطارية السيارة', 'شحن كهرباء'],
-          keywordsEn: ['car charging', 'charge car', 'ev charger', 'electric car'],
-        ),
-      ],
-    ),
-    Room(
-      id: 'roof',
-      nameAr: 'السطح',
-      nameEn: 'Roof',
-      keywordsAr: ['السطح', 'الروف', 'أعلى البيت'],
-      keywordsEn: ['roof', 'rooftop', 'top floor'],
-      devices: [
-        Device(
-          id: 'roof_solar',
-          nameAr: 'ألواح شمسية',
-          nameEn: 'Solar Panels',
-          type: 'solar',
-          keywordsAr: ['طاقة شمسية', 'ألواح شمسية', 'الطاقة', 'الخلايا الشمسية'],
-          keywordsEn: ['solar', 'solar panels', 'solar energy'],
-        ),
-        Device(
-          id: 'roof_drain',
-          nameAr: 'نظام تصريف المياه',
-          nameEn: 'Water Drainage System',
-          type: 'drainage',
-          keywordsAr: ['تصريف', 'مياه', 'مطر', 'نظام التصريف'],
-          keywordsEn: ['drainage', 'rainwater', 'water system'],
-        ),
-      ],
-    ),
-    Room(
-      id: 'bedroom',
-      nameAr: 'غرفة النوم',
-      nameEn: 'Bedroom',
-      keywordsAr: ['غرفة النوم', 'النوم', 'الاودة', 'السرير'],
-      keywordsEn: ['bedroom', 'sleep', 'room', 'bed'],
-      devices: [
-        Device(
-          id: 'bedroom_alarm',
-          nameAr: 'منبه ذكي',
-          nameEn: 'Smart Alarm',
-          type: 'alarm',
-          keywordsAr: ['منبه', 'تنبيه', 'الساعة', 'الاستيقاظ'],
-          keywordsEn: ['alarm', 'smart alarm', 'clock', 'wake up'],
-        ),
-        Device(
-          id: 'bedroom_purifier',
-          nameAr: 'منقي هواء',
-          nameEn: 'Air Purifier',
-          type: 'purifier',
-          keywordsAr: ['منقي', 'هواء', 'فلتر', 'نقاء', 'تنقية الهواء'],
-          keywordsEn: ['purifier', 'air filter', 'clean air', 'air purifier'],
-        ),
-        Device(
-          id: 'bedroom_lighting_control',
-          nameAr: 'تحكم في الإضاءة',
-          nameEn: 'Lighting Control',
-          type: 'light_control',
-          keywordsAr: ['إضاءة', 'نور', 'تحكم', 'لمبة', 'ضوء'],
-          keywordsEn: ['light', 'lamp', 'lighting', 'light control'],
-        ),
-      ],
-    ),
-    Room(
-      id: 'garden',
-      nameAr: 'الحديقة',
-      nameEn: 'Garden',
-      keywordsAr: ['الحديقة', 'الجنينة', 'حديقة البيت', 'الخارج'],
-      keywordsEn: ['garden', 'yard', 'outside garden', 'outdoor'],
-      devices: [
-        Device(
-          id: 'garden_watering',
-          nameAr: 'سقي تلقائي',
-          nameEn: 'Automated Watering',
-          type: 'watering',
-          keywordsAr: ['سقي', 'الري', 'تلقائي', 'ماء النباتات'],
-          keywordsEn: ['watering', 'auto watering', 'irrigation', 'water plants'],
-        ),
-        Device(
-          id: 'garden_soil',
-          nameAr: 'مراقبة التربة',
-          nameEn: 'Soil Monitoring',
-          type: 'soil_monitor',
-          keywordsAr: ['تربة', 'مراقبة', 'حالة التربة', 'خصوبة'],
-          keywordsEn: ['soil', 'monitoring', 'soil health', 'moisture'],
-        ),
-        Device(
-          id: 'garden_lighting',
-          nameAr: 'إضاءة خارجية',
-          nameEn: 'Outdoor Lighting',
-          type: 'outdoor_light',
-          keywordsAr: ['إضاءة', 'خارجية', 'نور الجنينة', 'أنوار الحديقة'],
-          keywordsEn: ['outdoor light', 'garden light', 'yard light'],
         ),
       ],
     ),
@@ -905,18 +913,28 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
   List<VoiceCommand> commands = [
     VoiceCommand(
       action: 'turn_on',
-      keywordsAr: ['شغل', 'افتح', 'اشغل', 'ولع'],
-      keywordsEn: ['turn on', 'open', 'start'],
+      keywordsAr: ['شغل', 'افتح', 'اشغل', 'ولع', 'فعل'],
+      keywordsEn: ['turn on', 'open', 'start', 'activate'],
     ),
     VoiceCommand(
       action: 'turn_off',
-      keywordsAr: ['اقفل', 'اطفي', 'اطفئ', 'سكر'],
-      keywordsEn: ['turn off', 'close', 'stop'],
+      keywordsAr: ['اقفل', 'اطفي', 'اطفئ', 'سكر', 'أوقف'],
+      keywordsEn: ['turn off', 'close', 'stop', 'deactivate'],
     ),
     VoiceCommand(
-      action: 'stop',
-      keywordsAr: ['وقف', 'استوب', 'توقف'],
-      keywordsEn: ['stop', 'halt', 'cease'],
+      action: 'lock',
+      keywordsAr: ['اقفل', 'قفل', 'أمن', 'احمِ'],
+      keywordsEn: ['lock', 'secure', 'close'],
+    ),
+    VoiceCommand(
+      action: 'unlock',
+      keywordsAr: ['افتح', 'اقفل القفل', 'فك القفل', 'الغ القفل'],
+      keywordsEn: ['unlock', 'open', 'unsecure'],
+    ),
+    VoiceCommand(
+      action: 'trigger',
+      keywordsAr: ['شغل', 'فعل', 'نبه', 'صوت'],
+      keywordsEn: ['trigger', 'activate', 'sound', 'start'],
     ),
   ];
 
@@ -928,6 +946,18 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
     _initializeSpeech();
     _initializeTts();
     _startPeriodicSync();
+    _testInitialConnection();
+  }
+
+  void _testInitialConnection() async {
+    print('🚀 Testing initial connection...');
+    bool isConnected = await ApiService.testConnection();
+    setState(() {
+      _isConnected = isConnected;
+      if (!isConnected) {
+        _connectionError = 'Server is not reachable';
+      }
+    });
   }
 
   void _initializeSpeech() async {
@@ -990,12 +1020,20 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
   }
 
   void _startPeriodicSync() {
-    _syncTimer = Timer.periodic(Duration(seconds: 10), (timer) {
-      ApiService.getAllDevices().then((result) {
+    _syncTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+      print('⏰ Periodic sync check...');
+      bool isConnected = await ApiService.testConnection();
+      
+      if (mounted) {
         setState(() {
-          _isConnected = result['success'];
+          _isConnected = isConnected;
+          if (!isConnected) {
+            _connectionError = 'Connection lost';
+          } else {
+            _connectionError = '';
+          }
         });
-      });
+      }
     });
   }
 
@@ -1048,16 +1086,18 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
 
   void _processVoiceCommand(String command) {
     setState(() => _lastCommand = command);
-    print('Processing command: $command');
+    print('🎤 Processing command: $command');
 
     String normalizedCommand = command.toLowerCase().trim();
     String? action;
 
+    // Find action in command
     for (VoiceCommand cmd in commands) {
       List<String> keywords = _selectedLocale == 'ar-SA' ? cmd.keywordsAr : cmd.keywordsEn;
       for (String keyword in keywords) {
-        if (normalizedCommand.contains(keyword)) {
+        if (normalizedCommand.contains(keyword.toLowerCase())) {
           action = cmd.action;
+          print('🎯 Found action: $action for keyword: $keyword');
           break;
         }
       }
@@ -1073,39 +1113,46 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
       return;
     }
 
+    // Find room and device
     Room? targetRoom;
+    Device? targetDevice;
+
+    // First try to find room
     for (Room room in rooms) {
       List<String> roomKeywords = _selectedLocale == 'ar-SA' ? room.keywordsAr : room.keywordsEn;
       for (String keyword in roomKeywords) {
-        if (normalizedCommand.contains(keyword)) {
+        if (normalizedCommand.contains(keyword.toLowerCase())) {
           targetRoom = room;
+          print('🏠 Found room: ${room.nameAr} for keyword: $keyword');
           break;
         }
       }
       if (targetRoom != null) break;
     }
 
-    Device? targetDevice;
+    // Then find device (either in specific room or globally)
     if (targetRoom != null) {
       for (Device device in targetRoom.devices) {
         List<String> deviceKeywords = _selectedLocale == 'ar-SA' ? device.keywordsAr : device.keywordsEn;
         for (String keyword in deviceKeywords) {
-          if (normalizedCommand.contains(keyword)) {
+          if (normalizedCommand.contains(keyword.toLowerCase())) {
             targetDevice = device;
+            print('🔧 Found device: ${device.nameAr} for keyword: $keyword');
             break;
           }
         }
         if (targetDevice != null) break;
       }
     } else {
+      // Search all rooms for device
       for (Room room in rooms) {
         for (Device device in room.devices) {
           List<String> deviceKeywords = _selectedLocale == 'ar-SA' ? device.keywordsAr : device.keywordsEn;
           for (String keyword in deviceKeywords) {
-
-            if (normalizedCommand.contains(keyword)) {
+            if (normalizedCommand.contains(keyword.toLowerCase())) {
               targetDevice = device;
               targetRoom = room;
+              print('🔧 Found device globally: ${device.nameAr} in ${room.nameAr}');
               break;
             }
           }
@@ -1115,8 +1162,9 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
       }
     }
 
-    if (targetDevice != null) {
-      _sendCommandToServer(targetDevice, action);
+    if (targetDevice != null && targetRoom != null) {
+      print('✅ Executing command: $action on ${targetDevice.nameAr} in ${targetRoom.nameAr}');
+      _sendCommandToDevice(targetRoom, targetDevice, action);
     } else {
       _commandResult = _selectedLocale == 'ar-SA'
           ? 'لم يتم العثور على الجهاز المطلوب'
@@ -1126,37 +1174,131 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
     }
   }
 
-  void _sendCommandToServer(Device device, String action) async {
-    print('Sending command $action to ${device.nameAr}');
-    final result = await ApiService.updateDevice(device.id, action);
+  void _sendCommandToDevice(Room room, Device device, String action) async {
+    print('📤 Sending command $action to ${device.nameAr} in ${room.nameAr}');
+    
+    if (!_isConnected) {
+      setState(() {
+        _commandResult = _selectedLocale == 'ar-SA'
+            ? 'خطأ: لا يوجد اتصال بالخادم'
+            : 'Error: No server connection';
+      });
+      _speak(_commandResult);
+      return;
+    }
+    
+    Map<String, dynamic> result = {'success': false, 'message': 'Unknown device'};
+
+    // Handle Corridor devices
+    if (room.id == 'corridor') {
+      if (device.action == 'light') {
+        if (action == 'turn_on') {
+          result = await ApiService.controlCorridorLight('on');
+        } else if (action == 'turn_off') {
+          result = await ApiService.controlCorridorLight('off');
+        }
+      } else if (device.action == 'elock') {
+        if (action == 'lock' || action == 'turn_on') {
+          result = await ApiService.controlCorridorLock(true);
+        } else if (action == 'unlock' || action == 'turn_off') {
+          result = await ApiService.controlCorridorLock(false);
+        }
+      }
+    }
+    // Handle Garage devices
+    else if (room.id == 'garage') {
+      if (device.action == 'door') {
+        if (action == 'turn_on' || action == 'turn_off') {
+          result = await ApiService.openGarageDoor();
+        }
+      } else if (device.action == 'buzzer') {
+        if (action == 'turn_on' || action == 'trigger') {
+          result = await ApiService.triggerGarageBuzzer();
+        }
+      }
+    }
+
+    // Update UI with result
     if (result['success']) {
       setState(() {
         if (_selectedLocale == 'ar-SA') {
-          _commandResult = action == 'turn_on'
-              ? 'تم تشغيل ${device.nameAr}'
-              : 'تم إيقاف ${device.nameAr}';
+          _commandResult = _getSuccessMessageAr(room, device, action);
         } else {
-          _commandResult = action == 'turn_on'
-              ? '${device.nameEn} turned on'
-              : '${device.nameEn} turned off';
+          _commandResult = _getSuccessMessageEn(room, device, action);
         }
       });
       _speak(_commandResult);
-      print('Server response: ${result['message']}');
+      print('✅ Server response: ${result['message']}');
     } else {
       setState(() {
         _commandResult = _selectedLocale == 'ar-SA'
-            ? 'خطأ في الاتصال بالخادم'
-            : 'Server connection error';
+            ? 'خطأ في الاتصال بالخادم: ${result['message'] ?? 'Unknown error'}'
+            : 'Server connection error: ${result['message'] ?? 'Unknown error'}';
+        _isConnected = false; // Update connection status
       });
       _speak(_commandResult);
+      print('❌ Server error: ${result['message']}');
     }
+  }
+
+  String _getSuccessMessageAr(Room room, Device device, String action) {
+    switch (action) {
+      case 'turn_on':
+        return 'تم تشغيل ${device.nameAr}';
+      case 'turn_off':
+        return 'تم إيقاف ${device.nameAr}';
+      case 'lock':
+        return 'تم قفل ${device.nameAr}';
+      case 'unlock':
+        return 'تم فتح ${device.nameAr}';
+      case 'trigger':
+        return 'تم تشغيل ${device.nameAr}';
+      default:
+        return 'تم تنفيذ الأمر على ${device.nameAr}';
+    }
+  }
+
+  String _getSuccessMessageEn(Room room, Device device, String action) {
+    switch (action) {
+      case 'turn_on':
+        return '${device.nameEn} turned on';
+      case 'turn_off':
+        return '${device.nameEn} turned off';
+      case 'lock':
+        return '${device.nameEn} locked';
+      case 'unlock':
+        return '${device.nameEn} unlocked';
+      case 'trigger':
+        return '${device.nameEn} triggered';
+      default:
+        return 'Command executed on ${device.nameEn}';
+    }
+  }
+
+  // Add test connection button handler
+  void _testConnection() async {
+    setState(() {
+      _commandResult = _selectedLocale == 'ar-SA'
+          ? 'جاري اختبار الاتصال...'
+          : 'Testing connection...';
+    });
+    
+    bool isConnected = await ApiService.testConnection();
+    
+    setState(() {
+      _isConnected = isConnected;
+      _commandResult = isConnected
+          ? (_selectedLocale == 'ar-SA' ? 'الاتصال ناجح!' : 'Connection successful!')
+          : (_selectedLocale == 'ar-SA' ? 'فشل الاتصال بالخادم' : 'Connection failed');
+    });
+    
+    _speak(_commandResult);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:const Color(0xFF0d1017),
+      backgroundColor: const Color(0xFF0d1017),
       appBar: AppBar(
         title: Text(_selectedLocale == 'ar-SA' ? 'التحكم الصوتي' : 'Voice Control'),
         backgroundColor: const Color(0xFF2879fe),
@@ -1169,6 +1311,9 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
               setState(() {
                 _selectedLocale = _selectedLocale == 'ar-SA' ? 'en-US' : 'ar-SA';
                 _initializeTts();
+                _text = _selectedLocale == 'ar-SA' 
+                    ? 'اضغط على الميكروفون وقل الأمر'
+                    : 'Press microphone and say command';
               });
             },
           ),
@@ -1197,7 +1342,7 @@ class _HomeControlScreenState extends State<HomeControlScreen> {
           margin: EdgeInsets.all(20),
           padding: EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color:  const Color(0xFF2879fe),
+            color: const Color(0xFF2879fe),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
